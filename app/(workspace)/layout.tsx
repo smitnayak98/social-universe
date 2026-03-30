@@ -1,13 +1,18 @@
-import type { ReactNode } from "react";
-import { SidebarNav } from "@/components/sidebar-nav";
+import SidebarNav from "@/components/sidebar-nav";
 
-export default function WorkspaceLayout({ children }: { children: ReactNode }) {
+export default function WorkspaceLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div className="min-h-screen bg-[#08051f] text-white">
-      <div className="mx-auto flex max-w-[1600px]">
-        <SidebarNav />
-        <main className="w-full p-6 md:p-8">{children}</main>
-      </div>
+    <div className="flex h-screen bg-zinc-950 overflow-hidden">
+      <SidebarNav />
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-5xl mx-auto px-6 py-8">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }
