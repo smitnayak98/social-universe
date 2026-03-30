@@ -63,8 +63,8 @@ export default function CalendarPage() {
                     <div className="space-y-0.5">
                       {dayPosts.slice(0,3).map(post => (
                         <div key={post.id} className="flex items-center gap-1 px-1 py-0.5 rounded text-[10px] truncate"
-                          style={{ background: `${PLAPLATFORM_COLORS[post.platform] ?? "#6366f1"}20`, color: PLAPLATFORM_COLORS[post.platform] ?? "#6366f1" }}>
-                          <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: PLAPLATFORM_COLORS[post.platform] ?? "#6366f1" }}/>
+                          style={{ background: `${PLATFORM_COLORS[post.platform] ?? "#6366f1"}20`, color: PLATFORM_COLORS[post.platform] ?? "#6366f1" }}>
+                          <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: PLATFORM_COLORS[post.platform] ?? "#6366f1" }}/>
                           <span className="truncate">{post.content?.substring(0,20)}</span>
                         </div>
                       ))}
@@ -96,8 +96,8 @@ export default function CalendarPage() {
                   {selectedPosts.map(post => (
                     <div key={post.id} className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
                       <div className="flex items-center gap-2 mb-1.5">
-                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: PLAPLATFORM_COLORS[post.platform] ?? "#6366f1" }}/>
-                        <span className="text-xs font-medium capitalize" style={{ color: PLAPLATFORM_COLORS[post.platform] ?? "#6366f1" }}>{post.platform}</span>
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: PLATFORM_COLORS[post.platform] ?? "#6366f1" }}/>
+                        <span className="text-xs font-medium capitalize" style={{ color: PLATFORM_COLORS[post.platform] ?? "#6366f1" }}>{post.platform}</span>
                         <span className={`ml-auto flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full ${STATUS_COLOR[post.status] ?? STATUS_COLOR.draft}`}>{STATUS_ICON[post.status]}{post.status}</span>
                       </div>
                       <p className="text-xs text-white/60 line-clamp-2 leading-relaxed">{post.content}</p>
