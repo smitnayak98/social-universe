@@ -5,18 +5,18 @@ import { useRouter } from 'next/navigation'
 export default function NewPostPage() {
   const router = useRouter()
   const [clients, setClients] = useState<{ id: string; name: string }[]>([])
-  const [form, setForm] = useState({ client_id: '', content: '', platform: 'instagram', scheduled_at: '' })
+  const [form, setForm] = useState({ client_id: '', caption: '', platform: 'instagram', scheduled_at: '' })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   useEffect(() => { supabase.from('clients').select('id, name').order('name').then(({ data }) => { if (data) setClients(data) }) }, [])
   async function handleSubmit(status: 'draft' | 'scheduled') {
-    if (!form.content.trim()) { setError('Content is required'); return }
+    if (!form.caption.trim()) { setError('Caption is required'); return }
     if (!form.client_id) { setError('Please select a client'); return }
     if (status === 'scheduled' && !form.scheduled_at) { setError('Please set a schedule time'); return }
     setSaving(true); setError('')
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setError('Not authenticated'); setSaving(false); return }
-    const { error } = await supabase.from('posts').insert({ user_id: user.id, client_id: form.client_id, content: form.content, platform: form.platform, status, scheduled_at: status === 'scheduled' && form.scheduled_at ? form.scheduled_at : null })
+    const { error } = await supabase.from('posts').insert({ user_id: user.id, client_id: form.client_id, caption: form.caption, platform: form.platform, status, scheduled_at: status === 'scheduled' && form.scheduled_at ? form.scheduled_at : null })
     if (error) { setError(error.message); setSaving(false); return }
     router.push('/posts')
   }
@@ -37,9 +37,9 @@ export default function NewPostPage() {
             ))}
           </div>
         </div>
-        <div><label className="text-sm font-medium text-gray-700">Content *</label>
-          <textarea className="mt-1 w-full border rounded-lg px-3 py-2 text-sm min-h-[160px] resize-none" value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} placeholder="Write your post content here..." />
-          <p className="text-xs text-gray-400 mt-1">{form.content.length} characters</p>
+        <div><label className="text-sm font-medium text-gray-700">Caption *</label>
+          <textarea className="mt-1 w-full border rounded-lg px-3 py-2 text-sm min-h-[160px] resize-none" value={form.caption} onChange={e => setForm(f => ({ ...f, caption: e.target.value }))} placeholder="Write your caption here..." />
+          <p className="text-xs text-gray-400 mt-1">{form.caption.length} characters</p>
         </div>
         <div><label className="text-sm font-medium text-gray-700">Schedule Date & Time</label>
           <input type="datetime-local" className="mt-1 w-full border rounded-lg px-3 py-2 text-sm" value={form.scheduled_at} onChange={e => setForm(f => ({ ...f, scheduled_at: e.target.value }))} />

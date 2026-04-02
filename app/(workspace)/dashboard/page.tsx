@@ -142,7 +142,7 @@ export default function DashboardPage() {
             {recentPosts.map(post => (
               <div key={post.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.03] transition-all">
                 <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: PLATFORM_COLORS[post.platform] ?? "#6366f1" }}/>
-                <p className="text-sm text-white/70 truncate flex-1">{post.content}</p>
+                <p className="text-sm text-white/70 truncate flex-1">{post.caption}</p>
                 <span className="text-xs text-white/30 capitalize hidden sm:block">{post.clients?.name ?? "—"}</span>
                 <span className={`text-xs px-2 py-0.5 rounded-full capitalize flex-shrink-0 ${STATUS_COLORS[post.status] ?? STATUS_COLORS.draft}`}>{post.status}</span>
               </div>

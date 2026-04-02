@@ -22,7 +22,7 @@ const PLATFORM_LIMITS: Record<string, number> = {
 
 interface Post {
   id: string;
-  content: string;
+  caption: string;
   platform: string;
   status: string;
   scheduled_at: string | null;
@@ -41,7 +41,7 @@ interface EditPostModalProps {
 }
 
 export default function EditPostModal({ post, onClose, onSaved }: EditPostModalProps) {
-  const [content, setContent] = useState("");
+  const [caption, setCaption] = useState("");
   const [platform, setPlatform] = useState("instagram");
   const [status, setStatus] = useState("draft");
   const [scheduledAt, setScheduledAt] = useState("");
@@ -58,7 +58,7 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
 
   useEffect(() => {
     if (post) {
-      setContent(post.content ?? "");
+      setCaption(post.caption ?? "");
       setPlatform(post.platform ?? "instagram");
       setStatus(post.status ?? "draft");
       setClientId(post.client_id ?? "");
@@ -78,19 +78,19 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
   if (!post) return null;
 
   const limit = PLATFORM_LIMITS[platform] ?? 2200;
-  const remaining = limit - content.length;
+  const remaining = limit - caption.length;
   const isOverLimit = remaining < 0;
 
   async function handleSave() {
-    if (!content.trim()) { setError("Content cannot be empty."); return; }
-    if (isOverLimit) { setError(`Content exceeds the ${platform} limit.`); return; }
+    if (!caption.trim()) { setError("Caption cannot be empty."); return; }
+    if (isOverLimit) { setError(`Caption exceeds the ${platform} limit.`); return; }
     setSaving(true);
     setError("");
 
     const { error: dbError } = await supabase
       .from("posts")
       .update({
-        content,
+        caption,
         platform,
         status,
         client_id: clientId || null,
@@ -162,12 +162,12 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
 
           {/* Content */}
           <div>
-            <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Content</label>
+            <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Caption</label>
             <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
               rows={5}
-              placeholder="Write your post content..."
+              placeholder="Write your caption..."
               className="w-full rounded-lg px-3 py-2.5 text-sm text-white bg-white/5 border border-white/10 focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all resize-none placeholder:text-white/20"
             />
             {/* Character counter */}
@@ -188,7 +188,7 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
                 className={`h-full rounded-full transition-all duration-300 ${
                   isOverLimit ? "bg-red-500" : remaining < limit * 0.1 ? "bg-amber-400" : "bg-indigo-500"
                 }`}
-                style={{ width: `${Math.min((content.length / limit) * 100, 100)}%` }}
+                style={{ width: `${Math.min((caption.length / limit) * 100, 100)}%` }}
               />
             </div>
           </div>

@@ -23,7 +23,7 @@ export default function SocialAccountsPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ platform: "instagram", account_name: "", account_handle: "", client_id: "" });
+  const [form, setForm] = useState({ platform: "instagram", account_name: "", account_name: "", client_id: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,7 +46,7 @@ export default function SocialAccountsPage() {
     const { error: e } = await supabase.from("social_accounts").insert({
       platform: form.platform,
       account_name: form.account_name.trim(),
-      account_handle: form.account_handle.trim() || null,
+      account_name: form.account_name.trim() || null,
       client_id: form.client_id || null,
       is_active: true,
       user_id: user?.id,
@@ -54,7 +54,7 @@ export default function SocialAccountsPage() {
     setSaving(false);
     if (e) { setError(e.message); return; }
     setShowAdd(false);
-    setForm({ platform: "instagram", account_name: "", account_handle: "", client_id: "" });
+    setForm({ platform: "instagram", account_name: "", account_name: "", client_id: "" });
     fetchAccounts();
   }
 
@@ -130,7 +130,7 @@ export default function SocialAccountsPage() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white/90 truncate">{acc.account_name}</p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          {acc.account_handle && <span className="text-xs text-white/40">@{acc.account_handle}</span>}
+                          {acc.account_name && <span className="text-xs text-white/40">@{acc.account_name}</span>}
                           {acc.clients?.name && <span className="text-xs text-white/25">· {acc.clients.name}</span>}
                         </div>
                       </div>
@@ -178,7 +178,7 @@ export default function SocialAccountsPage() {
                 <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Handle</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-sm">@</span>
-                  <input value={form.account_handle} onChange={e => setForm(f => ({ ...f, account_handle: e.target.value }))} placeholder="username" className="w-full pl-7 pr-3 py-2 rounded-lg text-sm text-white bg-white/5 border border-white/10 focus:border-indigo-500/60 focus:outline-none placeholder:text-white/20" />
+                  <input value={form.account_name} onChange={e => setForm(f => ({ ...f, account_name: e.target.value }))} placeholder="username" className="w-full pl-7 pr-3 py-2 rounded-lg text-sm text-white bg-white/5 border border-white/10 focus:border-indigo-500/60 focus:outline-none placeholder:text-white/20" />
                 </div>
               </div>
               <div>

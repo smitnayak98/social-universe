@@ -31,15 +31,14 @@ export default function PostsPage() {
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     let query = supabase.from("posts").select("*, clients(name)").order("created_at", { ascending: false });
-    if (filterPlatform) query = query.eq("platform", filterPlatform);
     if (filterStatus) query = query.eq("status", filterStatus);
     if (filterClient) query = query.eq("client_id", filterClient);
-    if (search) query = query.ilike("content", `%${search}%`);
+    if (search) query = query.ilike("caption", `%${search}%`);
     const { data } = await query;
     setPosts(data ?? []);
     setLoading(false);
     setSelected(new Set());
-  }, [filterPlatform, filterStatus, filterClient, search]);
+  }, [filterStatus, filterClient, search]);
 
   useEffect(() => { fetchPosts(); }, [fetchPosts]);
   useEffect(() => {
@@ -186,7 +185,7 @@ export default function PostsPage() {
                         {selected.has(post.id) ? <CheckSquare size={14} className="text-indigo-400"/> : <Square size={14}/>}
                       </button>
                     </td>
-                    <td className="px-4 py-3"><p className="text-sm text-white/80 line-clamp-2 max-w-xs">{post.content}</p></td>
+                    <td className="px-4 py-3"><p className="text-sm text-white/80 line-clamp-2 max-w-xs">{post.caption}</p></td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5 text-sm text-white/60 capitalize">
                         <Globe size={13} style={{ color: PLATFORM_COLORS[post.platform] }}/>{post.platform}

@@ -41,7 +41,7 @@ export default function CalendarPage() {
     const startOfMonth = new Date(year, month, 1).toISOString();
     const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
     const { data } = await supabase.from("posts")
-      .select("id, content, platform, status, scheduled_at, clients(name)")
+      .select("id, caption, platform, status, scheduled_at, clients(name)")
       .eq("user_id", user.id)
       .not("scheduled_at", "is", null)
       .gte("scheduled_at", startOfMonth)
@@ -155,7 +155,7 @@ export default function CalendarPage() {
                           <span className={`text-[10px] px-1.5 py-0.5 rounded-full border capitalize ${badge}`}>{post.status}</span>
                         </div>
                       </div>
-                      <p className="text-xs text-zinc-400 line-clamp-3">{post.content}</p>
+                      <p className="text-xs text-zinc-400 line-clamp-3">{post.caption}</p>
                       {post.clients?.name && <p className="text-[10px] text-zinc-600">{post.clients.name}</p>}
                     </div>
                   );

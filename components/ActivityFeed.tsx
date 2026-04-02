@@ -64,7 +64,7 @@ export default function ActivityFeed() {
                           <span className={STATUS_COLOR[post.status]}>{STATUS_ICON[post.status]}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs text-white/70 line-clamp-2 leading-relaxed">{post.content || "Untitled post"}</p>
+                          <p className="text-xs text-white/70 line-clamp-2 leading-relaxed">{post.caption || "Untitled post"}</p>
                           <div className="flex items-center gap-2 mt-1.5">
                             <span className="text-[10px] capitalize font-medium" style={{ color: PLATFORM_COLORS[post.platform]??'#6366f1' }}>{post.platform}</span>
                             <span className={`text-[10px] capitalize ${STATUS_COLOR[post.status]}`}>{post.status}</span>

@@ -27,7 +27,7 @@ export default function GlobalSearch() {
     const timer = setTimeout(async () => {
       setLoading(true);
       const [{ data: posts }, { data: clients }, { data: accounts }] = await Promise.all([
-        supabase.from("posts").select("id, content, platform, status").ilike("content", `%${query}%`).limit(5),
+        supabase.from("posts").select("id, caption, platform, status").ilike("caption", `%${query}%`).limit(5),
         supabase.from("clients").select("id, name, industry").ilike("name", `%${query}%`).limit(5),
         supabase.from("social_accounts").select("id, account_name, platform, account_handle").ilike("account_name", `%${query}%`).limit(5),
       ]);
@@ -39,7 +39,7 @@ export default function GlobalSearch() {
   }, [query]);
   const allResults = [
     ...results.clients.map(c => ({ type: "client", label: c.name, sub: c.industry ?? "Client", href: "/clients", icon: <Users size={13}/>, color: "#a78bfa" })),
-    ...results.posts.map(p => ({ type: "post", label: p.content?.substring(0,60) ?? "Post", sub: `${p.platform} · ${p.status}`, href: "/posts", icon: <FileText size={13}/>, color: PLATFORM_COLORS[p.platform] ?? "#6366f1" })),
+    ...results.posts.map(p => ({ type: "post", label: p.caption?.substring(0,60) ?? "Post", sub: `${p.platform} · ${p.status}`, href: "/posts", icon: <FileText size={13}/>, color: PLATFORM_COLORS[p.platform] ?? "#6366f1" })),
     ...results.accounts.map(a => ({ type: "account", label: a.account_name, sub: `${a.platform}${a.account_handle ? ` · @${a.account_handle}` : ""}`, href: "/social-accounts", icon: <Link2 size={13}/>, color: PLATFORM_COLORS[a.platform] ?? "#6366f1" })),
   ];
   const QUICK_LINKS = [

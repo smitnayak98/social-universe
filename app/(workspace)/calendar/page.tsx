@@ -65,7 +65,7 @@ export default function CalendarPage() {
                         <div key={post.id} className="flex items-center gap-1 px-1 py-0.5 rounded text-[10px] truncate"
                           style={{ background: `${PLATFORM_COLORS[post.platform] ?? "#6366f1"}20`, color: PLATFORM_COLORS[post.platform] ?? "#6366f1" }}>
                           <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: PLATFORM_COLORS[post.platform] ?? "#6366f1" }}/>
-                          <span className="truncate">{post.content?.substring(0,20)}</span>
+                          <span className="truncate">{post.caption?.substring(0,20)}</span>
                         </div>
                       ))}
                       {dayPosts.length > 3 && <div className="text-[10px] text-white/30 px-1">+{dayPosts.length-3} more</div>}
@@ -100,7 +100,7 @@ export default function CalendarPage() {
                         <span className="text-xs font-medium capitalize" style={{ color: PLATFORM_COLORS[post.platform] ?? "#6366f1" }}>{post.platform}</span>
                         <span className={`ml-auto flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full ${STATUS_COLOR[post.status] ?? STATUS_COLOR.draft}`}>{STATUS_ICON[post.status]}{post.status}</span>
                       </div>
-                      <p className="text-xs text-white/60 line-clamp-2 leading-relaxed">{post.content}</p>
+                      <p className="text-xs text-white/60 line-clamp-2 leading-relaxed">{post.caption}</p>
                       {post.clients?.name && <p className="text-[10px] text-white/25 mt-1.5">{post.clients.name}</p>}
                       {post.scheduled_at && <p className="text-[10px] text-white/25 mt-0.5">{new Date(post.scheduled_at).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}</p>}
                     </div>

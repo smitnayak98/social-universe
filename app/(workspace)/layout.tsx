@@ -16,3 +16,9 @@ export default function WorkspaceLayout({
     </div>
   );
 }
+import { ToastProvider } from '@/components/Toast'
+
+// Wrap your existing layout content with:
+<ToastProvider>
+  {/* existing layout */}
+</ToastProvider>
