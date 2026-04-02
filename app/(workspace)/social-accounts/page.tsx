@@ -48,7 +48,7 @@ export default function SocialAccountsPage() {
       account_name: form.account_name.trim(),
       account_name: form.account_name.trim() || null,
       client_id: form.client_id || null,
-      is_active: true,
+      is_connected: true,
       user_id: user?.id,
     });
     setSaving(false);
@@ -68,8 +68,8 @@ export default function SocialAccountsPage() {
 
   async function handleToggle(acc: any) {
     setTogglingId(acc.id);
-    await supabase.from("social_accounts").update({ is_active: !acc.is_active }).eq("id", acc.id);
-    setAccounts(prev => prev.map(a => a.id === acc.id ? { ...a, is_active: !a.is_active } : a));
+    await supabase.from("social_accounts").update({ is_connected: !acc.is_connected }).eq("id", acc.id);
+    setAccounts(prev => prev.map(a => a.id === acc.id ? { ...a, is_connected: !a.is_connected } : a));
     setTogglingId(null);
   }
 
@@ -123,7 +123,7 @@ export default function SocialAccountsPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {grouped[pf.id].map((acc: any) => (
-                    <div key={acc.id} className={`rounded-xl p-4 border flex items-center gap-3 ${acc.is_active ? "bg-white/[0.03] border-white/10" : "bg-white/[0.01] border-white/5 opacity-60"}`}>
+                    <div key={acc.id} className={`rounded-xl p-4 border flex items-center gap-3 ${acc.is_connected ? "bg-white/[0.03] border-white/10" : "bg-white/[0.01] border-white/5 opacity-60"}`}>
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: pf.bg, color: pf.color }}>
                         <Globe size={18} />
                       </div>
@@ -136,7 +136,7 @@ export default function SocialAccountsPage() {
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <button onClick={() => handleToggle(acc)} disabled={togglingId === acc.id} className="w-7 h-7 rounded-md flex items-center justify-center transition-all hover:bg-white/10 disabled:opacity-30">
-                          {togglingId === acc.id ? <Loader2 size={13} className="animate-spin text-white/30" /> : acc.is_active ? <CheckCircle2 size={15} className="text-emerald-400" /> : <XCircle size={15} className="text-white/20" />}
+                          {togglingId === acc.id ? <Loader2 size={13} className="animate-spin text-white/30" /> : acc.is_connected ? <CheckCircle2 size={15} className="text-emerald-400" /> : <XCircle size={15} className="text-white/20" />}
                         </button>
                         <button onClick={() => handleDelete(acc.id)} disabled={deletingId === acc.id} className="w-7 h-7 rounded-md flex items-center justify-center text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30">
                           {deletingId === acc.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
