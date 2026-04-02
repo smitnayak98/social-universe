@@ -106,12 +106,17 @@ export async function GET(req: Request) {
           continue
         }
 
-        await supabase.from('posts').update({
+        const { error: updateError } = await supabase.from('posts').update({
           status: 'published',
           published_at: new Date().toISOString(),
         }).eq('id', post.id)
 
-        results.push({ post_id: post.id, status: 'published', instagram_id: publishData.id })
+        if (updateError) {
+          console.error('Failed to update post status:', updateError)
+          results.push({ post_id: post.id, status: 'published_but_db_failed', instagram_id: publishData.id, db_error: updateError.message })
+        } else {
+          results.push({ post_id: post.id, status: 'published', instagram_id: publishData.id })
+        }
 
       } catch (err: any) {
         results.push({ post_id: post.id, status: 'error', reason: err.message })
