@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, PlusSquare, Calendar, BarChart3, Settings, Link2, Zap, Search, CheckCircle } from "lucide-react";
+import { LayoutDashboard, Users, FileText, PlusSquare, Calendar, BarChart3, Settings, Link2, Zap, Search } from "lucide-react";
 import LogoutButton from "./LogoutButton";
 import ActivityFeed from "./ActivityFeed";
 import GlobalSearch from "./GlobalSearch";
@@ -14,7 +14,6 @@ const NAV_ITEMS = [
   { href: "/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/social-accounts", icon: Link2, label: "Social Accounts" },
   { href: "/settings", icon: Settings, label: "Settings" },
-  { href: "/approvals", icon: CheckCircle, label: "Approvals" },
 ];
 export default function SidebarNav() {
   const pathname = usePathname();

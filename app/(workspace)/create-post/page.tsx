@@ -66,7 +66,67 @@ export default function CreatePostPage() {
     };
 
     loadClients();
-    return () => {
+  
+  const handlePublishNow = async () => {
+    if (!caption.trim()) { showToast("Please write a caption", "error"); return; }
+    if (!clientId) { showToast("Please select a client", "error"); return; }
+    if (platforms.length === 0) { showToast("Select at least one platform", "error"); return; }
+    if (mediaFiles.length === 0) { showToast("Instagram requires at least one image or video", "error"); return; }
+
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // First save the post
+    const { data, error } = await supabase
+      .from("posts")
+      .insert([{
+        user_id:      user?.id,
+        client_id:    clientId,
+        caption,
+        status:       "draft",
+        scheduled_at: null,
+      }])
+      .select();
+
+    if (error || !data?.[0]?.id) {
+      showToast("Failed to save post: " + (error?.message || "Unknown error"), "error");
+      setLoading(false);
+      return;
+    }
+
+    const postId = data[0].id;
+
+    // Save media
+    if (mediaFiles.length > 0) {
+      await supabase.from("post_media").insert(
+        mediaFiles.map((m, i) => ({
+          post_id:    postId,
+          media_url:  m.url,
+          media_type: m.type,
+          position:   i,
+        }))
+      );
+    }
+
+    // Now publish to Instagram
+    const res = await fetch("/api/instagram/publish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ post_id: postId }),
+    });
+    const result = await res.json();
+
+    if (result.success) {
+      showToast("Published to Instagram!", "success");
+      setCaption(""); setMediaFiles([]); setScheduleAt("");
+      setPlatforms(["instagram", "facebook", "linkedin", "twitter"]);
+      setTimeout(() => router.push("/posts"), 700);
+    } else {
+      showToast(result.error || "Failed to publish", "error");
+    }
+    setLoading(false);
+  };
+  return () => {
       active = false;
     };
   }, []);
@@ -139,6 +199,66 @@ export default function CreatePostPage() {
     setTimeout(() => router.push("/posts"), 700);
   };
 
+
+  const handlePublishNow = async () => {
+    if (!caption.trim()) { showToast("Please write a caption", "error"); return; }
+    if (!clientId) { showToast("Please select a client", "error"); return; }
+    if (platforms.length === 0) { showToast("Select at least one platform", "error"); return; }
+    if (mediaFiles.length === 0) { showToast("Instagram requires at least one image or video", "error"); return; }
+
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // First save the post
+    const { data, error } = await supabase
+      .from("posts")
+      .insert([{
+        user_id:      user?.id,
+        client_id:    clientId,
+        caption,
+        status:       "draft",
+        scheduled_at: null,
+      }])
+      .select();
+
+    if (error || !data?.[0]?.id) {
+      showToast("Failed to save post: " + (error?.message || "Unknown error"), "error");
+      setLoading(false);
+      return;
+    }
+
+    const postId = data[0].id;
+
+    // Save media
+    if (mediaFiles.length > 0) {
+      await supabase.from("post_media").insert(
+        mediaFiles.map((m, i) => ({
+          post_id:    postId,
+          media_url:  m.url,
+          media_type: m.type,
+          position:   i,
+        }))
+      );
+    }
+
+    // Now publish to Instagram
+    const res = await fetch("/api/instagram/publish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ post_id: postId }),
+    });
+    const result = await res.json();
+
+    if (result.success) {
+      showToast("Published to Instagram!", "success");
+      setCaption(""); setMediaFiles([]); setScheduleAt("");
+      setPlatforms(["instagram", "facebook", "linkedin", "twitter"]);
+      setTimeout(() => router.push("/posts"), 700);
+    } else {
+      showToast(result.error || "Failed to publish", "error");
+    }
+    setLoading(false);
+  };
   return (
     <div className="space-y-6">
       {toast && (
@@ -210,13 +330,14 @@ export default function CreatePostPage() {
               className="w-full rounded-xl border border-white/10 bg-[#130d3b] px-3 py-2.5 outline-none ring-violet-400 focus:ring" />
           </label>
           <div className="flex flex-wrap gap-3 pt-2">
-            <button type="button" disabled={loading} onClick={() => handleSubmit("pending_approval")}
-              className="rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold text-violet-100 transition hover:bg-white/10 disabled:opacity-50">
-              {loading ? "Saving..." : "Submit for Approval"}
-            </button>
+
             <button type="button" disabled={loading} onClick={() => handleSubmit("scheduled")}
               className="rounded-xl bg-[#7F77DD] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#938ce8] disabled:opacity-50">
               {loading ? "Saving..." : "Schedule"}
+            </button>
+            <button type="button" disabled={loading} onClick={handlePublishNow}
+              className="rounded-xl bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-50 shadow-lg">
+              {loading ? "Publishing..." : "Publish Now to Instagram"}
             </button>
             <button type="button" disabled={loading} onClick={() => handleSubmit("draft")}
               className="rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold text-violet-100 transition hover:bg-white/10 disabled:opacity-50">
