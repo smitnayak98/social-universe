@@ -1,13 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { createBrowserClient } from '@supabase/ssr'
 import { Upload, X, Image as ImageIcon, Film, Loader2, AlertCircle } from 'lucide-react'
-
-const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 interface UploadedMedia {
   id: string
@@ -20,6 +14,7 @@ interface UploadedMedia {
 
 interface MediaUploaderProps {
   onMediaChange: (media: UploadedMedia[]) => void
+  onUploadingChange?: (uploading: boolean) => void
   maxFiles?: number
 }
 
@@ -28,13 +23,15 @@ const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm']
 const ACCEPTED_TYPES = [...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_VIDEO_TYPES]
 const MAX_IMAGE_SIZE_MB = 50
 const MAX_VIDEO_SIZE_MB = 700
+const CLOUD_NAME = 'dnhndstzh'
+const UPLOAD_PRESET = 'social_universe'
 
 function formatBytes(bytes: number) {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export default function MediaUploader({ onMediaChange, maxFiles = 4 }: MediaUploaderProps) {
+export default function MediaUploader({ onMediaChange, onUploadingChange, maxFiles = 4 }: MediaUploaderProps) {
   const [media, setMedia] = useState<UploadedMedia[]>([])
   const [uploading, setUploading] = useState<string[]>([])
   const [dragOver, setDragOver] = useState(false)
@@ -44,6 +41,7 @@ export default function MediaUploader({ onMediaChange, maxFiles = 4 }: MediaUplo
   const uploadFile = useCallback(async (file: File) => {
     const isVideo = ACCEPTED_VIDEO_TYPES.includes(file.type)
     const sizeLimit = isVideo ? MAX_VIDEO_SIZE_MB : MAX_IMAGE_SIZE_MB
+
     if (file.size > sizeLimit * 1024 * 1024) {
       setError(`"${file.name}" exceeds ${sizeLimit}MB limit`)
       return null
@@ -52,21 +50,49 @@ export default function MediaUploader({ onMediaChange, maxFiles = 4 }: MediaUplo
       setError(`"${file.name}" is not a supported file type`)
       return null
     }
-    setUploading(prev => [...prev, file.name])
+
+    setUploading(prev => {
+      const next = [...prev, file.name]
+      onUploadingChange?.(true)
+      return next
+    })
     setError(null)
-    const ext = file.name.split('.').pop()
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-    const path = `post-media/${id}.${ext}`
-    const { data, error: uploadError } = await supabase.storage
-      .from('post-media')
-      .upload(path, file, { cacheControl: '3600', upsert: false })
-    setUploading(prev => prev.filter(n => n !== file.name))
-    if (uploadError) { setError(`Upload failed: ${uploadError.message}`); return null }
-    const { data: urlData } = supabase.storage.from('post-media').getPublicUrl(data.path)
-    return { id, url: urlData.publicUrl, path: data.path,
-      type: ACCEPTED_IMAGE_TYPES.includes(file.type) ? 'image' as const : 'video' as const,
-      name: file.name, size: file.size }
-  }, [])
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('upload_preset', UPLOAD_PRESET)
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`,
+        { method: 'POST', body: formData }
+      )
+      const data = await res.json()
+
+      if (data.error) {
+        setError(`Upload failed: ${data.error.message}`)
+        return null
+      }
+
+      return {
+        id: data.public_id,
+        url: data.secure_url,
+        path: data.secure_url,
+        type: isVideo ? 'video' as const : 'image' as const,
+        name: file.name,
+        size: file.size,
+      }
+    } catch (err: any) {
+      setError(`Upload failed: ${err.message}`)
+      return null
+    } finally {
+      setUploading(prev => {
+        const next = prev.filter(n => n !== file.name)
+        onUploadingChange?.(next.length > 0)
+        return next
+      })
+    }
+  }, [onUploadingChange])
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     const toUpload = Array.from(files).slice(0, maxFiles - media.length)
@@ -80,8 +106,7 @@ export default function MediaUploader({ onMediaChange, maxFiles = 4 }: MediaUplo
     }
   }, [media, maxFiles, uploadFile, onMediaChange])
 
-  const removeMedia = async (item: UploadedMedia) => {
-    await supabase.storage.from('post-media').remove([item.path])
+  const removeMedia = (item: UploadedMedia) => {
     const updated = media.filter(m => m.id !== item.id)
     setMedia(updated)
     onMediaChange(updated)
@@ -107,10 +132,10 @@ export default function MediaUploader({ onMediaChange, maxFiles = 4 }: MediaUplo
           </div>
           <div className="text-center">
             <p className="text-sm font-medium text-slate-300">{dragOver ? 'Drop files here' : 'Drag & drop media'}</p>
-            <p className="text-xs text-slate-600 mt-1">or <span className="text-indigo-400">browse files</span> · Images 10MB · ViMB</p>
+            <p className="text-xs text-slate-600 mt-1">or <span className="text-indigo-400">browse files</span> · Images 50MB · Videos 700MB</p>
           </div>
           <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_TYPES.join(',')}
-            className="hidden" onChange={e => e.target.files && handleFiles(e.target.files)} />
+            className="hidden" onChange={e => e.target.files &handleFiles(e.target.files)} />
         </div>
         {error && <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs"><AlertCircle size={13} />{error}</div>}
       </div>
@@ -156,12 +181,11 @@ export default function MediaUploader({ onMediaChange, maxFiles = 4 }: MediaUplo
       </div>
       <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_TYPES.join(',')}
         className="hidden" onChange={e => e.target.files && handleFiles(e.target.files)} />
-      <p className="text-xs text-slate-600">{media.length}/{maxFiles} files · Hover a file and click × to remove</p>
+      <p className="text-xs text-slate-600">{media.length}/{maxFiles} files</p>
       {error && <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs"><AlertCircle size={13} />{error}</div>}
       <div onDragOver={e => { e.preventDefault(); setDragOver(true) }} onDragLeave={() => setDragOver(false)} onDrop={onDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`flex items-center justify-center gap-2 py-2 rounded-xl border border-dashed text-xs transition-all cursor-pointer
-          ${dragOver ? 'border-indigo-400 bg-indigo-500/10 text-indigo-400' : 'border-white/10 text-slate-600 hover:border-white/20 hover:text-slate-500'}`}>
+        className="flex items-center justify-center gap-2 py-2 rounded-xl border border-dashed border-white/10 text-xs text-slate-600 hover:border-white/20 hover:text-slate-500 cursor-pointer transition-all">
         <Upload size={12} /> Drop more files or click to browse
       </div>
     </div>

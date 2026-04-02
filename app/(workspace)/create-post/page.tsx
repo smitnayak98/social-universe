@@ -36,6 +36,7 @@ export default function CreatePostPage() {
   const [clientId,    setClientId]    = useState("");
   const [contentType, setContentType] = useState("Post");
   const [loading,     setLoading]     = useState(false);
+  const [uploading,   setUploading]   = useState(false);
   const [toast,       setToast]       = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
   const left = useMemo(() => maxChars - caption.length, [caption]);
@@ -71,8 +72,6 @@ export default function CreatePostPage() {
     if (!caption.trim()) { showToast("Please write a caption", "error"); return; }
     if (!clientId) { showToast("Please select a client", "error"); return; }
     if (platforms.length === 0) { showToast("Select at least one platform", "error"); return; }
-    if (mediaFiles.length === 0) { showToast("Instagram requires at least one image or video", "error"); return; }
-
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -100,10 +99,11 @@ export default function CreatePostPage() {
     if (mediaFiles.length > 0) {
       await supabase.from("post_media").insert(
         mediaFiles.map((m, i) => ({
-          post_id:    postId,
-          media_url:  m.url,
-          media_type: m.type,
-          position:   i,
+          post_id:      postId,
+          storage_path: m.url,
+          media_type:   m.type.includes('video') ? 'video' : 'image',
+          mime_type:    m.type === 'video' ? 'video/mp4' : 'image/jpeg',
+          sort_order:   i,
         }))
       );
     }
@@ -112,7 +112,10 @@ export default function CreatePostPage() {
     const res = await fetch("/api/instagram/publish", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ post_id: postId }),
+      body: JSON.stringify({ 
+        post_id: postId,
+        image_url: mediaFiles.length > 0 ? mediaFiles[0].url : null
+      }),
     });
     const result = await res.json();
 
@@ -204,8 +207,6 @@ export default function CreatePostPage() {
     if (!caption.trim()) { showToast("Please write a caption", "error"); return; }
     if (!clientId) { showToast("Please select a client", "error"); return; }
     if (platforms.length === 0) { showToast("Select at least one platform", "error"); return; }
-    if (mediaFiles.length === 0) { showToast("Instagram requires at least one image or video", "error"); return; }
-
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -233,10 +234,11 @@ export default function CreatePostPage() {
     if (mediaFiles.length > 0) {
       await supabase.from("post_media").insert(
         mediaFiles.map((m, i) => ({
-          post_id:    postId,
-          media_url:  m.url,
-          media_type: m.type,
-          position:   i,
+          post_id:      postId,
+          storage_path: m.url,
+          media_type:   m.type.includes('video') ? 'video' : 'image',
+          mime_type:    m.type === 'video' ? 'video/mp4' : 'image/jpeg',
+          sort_order:   i,
         }))
       );
     }
@@ -245,7 +247,10 @@ export default function CreatePostPage() {
     const res = await fetch("/api/instagram/publish", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ post_id: postId }),
+      body: JSON.stringify({ 
+        post_id: postId,
+        image_url: mediaFiles.length > 0 ? mediaFiles[0].url : null
+      }),
     });
     const result = await res.json();
 
@@ -308,7 +313,7 @@ export default function CreatePostPage() {
           </label>
           <div className="space-y-2 text-sm">
             <span className="text-violet-100/85">Media <span className="text-violet-100/40">(optional · max 10MB each)</span></span>
-            <MediaUploader onMediaChange={setMediaFiles} maxFiles={15} />
+            <MediaUploader onMediaChange={setMediaFiles} onUploadingChange={setUploading} maxFiles={15} />
           </div>
           <fieldset>
             <legend className="mb-2 text-sm text-violet-100/85">Platforms</legend>
@@ -335,9 +340,9 @@ export default function CreatePostPage() {
               className="rounded-xl bg-[#7F77DD] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#938ce8] disabled:opacity-50">
               {loading ? "Saving..." : "Schedule"}
             </button>
-            <button type="button" disabled={loading} onClick={handlePublishNow}
+            <button type="button" disabled={loading || uploading} onClick={handlePublishNow}
               className="rounded-xl bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-50 shadow-lg">
-              {loading ? "Publishing..." : "Publish Now to Instagram"}
+              {uploading ? "Uploading media..." : loading ? "Publishing..." : "Publish Now to Instagram"}
             </button>
             <button type="button" disabled={loading} onClick={() => handleSubmit("draft")}
               className="rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold text-violet-100 transition hover:bg-white/10 disabled:opacity-50">

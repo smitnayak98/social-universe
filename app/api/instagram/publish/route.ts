@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(req: NextRequest) {
   try {
-    const { post_id } = await req.json()
+    const { post_id, image_url: directImageUrl } = await req.json()
     if (!post_id) return NextResponse.json({ error: 'post_id required' }, { status: 400 })
 
-    const supabase = createClient()
+    const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 
     // Get the post
     const { data: post, error: postError } = await supabase
@@ -23,6 +26,7 @@ export async function POST(req: NextRequest) {
       .select('*')
       .eq('platform', 'instagram')
       .eq('is_connected', true)
+      .not('access_token', 'is', null)
       .single()
 
     if (!account?.access_token) {
@@ -37,16 +41,17 @@ export async function POST(req: NextRequest) {
       .from('post_media')
       .select('*')
       .eq('post_id', post_id)
-      .order('position')
+      .order('sort_order')
 
     let mediaId: string
 
     if (mediaFiles && mediaFiles.length > 0) {
       // Post with image
-      const imageUrl = mediaFiles[0].media_url
+      const imageUrl = mediaFiles[0].storage_path
       const isVideo = mediaFiles[0].media_type === 'video'
 
-      // Step 1: Create media container
+      console.log('Sending image URL to Instagram:', imageUrl)
+    // Step 1: Create media container
       const containerRes = await fetch(
         `https://graph.instagram.com/v18.0/${igUserId}/media`,
         {
