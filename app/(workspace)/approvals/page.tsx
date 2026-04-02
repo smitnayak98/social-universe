@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { CheckCircle, XCircle, Clock, MessageSquare, ChevronDown, RefreshCw, Eye, AlertCircle, Calendar, Filter } from 'lucide-react'
+import { CheckCircle, XCircle, Clock, MessageSquare, ChevronDown, RefreshCw, Eye, AlertCircle, Calendar, Filter, Send } from 'lucide-react'
 
 const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -10,10 +10,12 @@ const supabase = createBrowserClient(
 )
 
 const STATUS_CONFIG = {
-  pending_approval: { label: 'Pending',  color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-  approved: { label: 'Approved', color: 'bg-green-500/20 text-green-400 border-green-500/30'   },
-  rejected: { label: 'Rejected', color: 'bg-red-500/20 text-red-400 border-red-500/30'         },
-  none:     { label: 'Draft',    color: 'bg-slate-500/20 text-slate-400 border-slate-500/30'   },
+  pending_approval: { label: 'Pending',   color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
+  approved:         { label: 'Approved',  color: 'bg-green-500/20 text-green-400 border-green-500/30'   },
+  rejected:         { label: 'Rejected',  color: 'bg-red-500/20 text-red-400 border-red-500/30'         },
+  published:        { label: 'Published', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30'      },
+  draft:            { label: 'Draft',     color: 'bg-slate-500/20 text-slate-400 border-slate-500/30'   },
+  scheduled:        { label: 'Scheduled', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30'},
 }
 
 export default function ApprovalsPage() {
@@ -23,12 +25,13 @@ export default function ApprovalsPage() {
   const [selectedPost, setSelectedPost] = useState(null)
   const [noteText, setNoteText] = useState('')
   const [actionLoading, setActionLoading] = useState(null)
+  const [publishLoading, setPublishLoading] = useState(null)
   const [toast, setToast] = useState(null)
-  const [stats, setStats] = useState({ pending_approval: 0, approved: 0, rejected: 0 })
+  const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0, published: 0 })
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type })
-    setTimeout(() => setToast(null), 3000)
+    setTimeout(() => setToast(null), 4000)
   }
 
   const fetchPosts = useCallback(async () => {
@@ -37,12 +40,14 @@ export default function ApprovalsPage() {
     if (filterStatus !== 'all') query = query.eq('status', filterStatus)
     const { data, error } = await query
     if (!error && data) setPosts(data)
-    const [p, a, r] = await Promise.all([
+
+    const [p, a, r, pub] = await Promise.all([
       supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'pending_approval'),
       supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
       supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'rejected'),
+      supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'published'),
     ])
-    setStats({ pending_approval: p.count ?? 0, approved: a.count ?? 0, rejected: r.count ?? 0 })
+    setStats({ pending: p.count ?? 0, approved: a.count ?? 0, rejected: r.count ?? 0, published: pub.count ?? 0 })
     setLoading(false)
   }, [filterStatus])
 
@@ -52,7 +57,7 @@ export default function ApprovalsPage() {
     setActionLoading(postId)
     const { data: { user } } = await supabase.auth.getUser()
     const { error } = await supabase.from('posts').update({
-      status: status,
+      status,
       approval_note: note || null,
       reviewed_by: user?.id,
       reviewed_at: new Date().toISOString(),
@@ -67,6 +72,27 @@ export default function ApprovalsPage() {
     setActionLoading(null)
   }
 
+  const handlePublish = async (postId) => {
+    setPublishLoading(postId)
+    try {
+      const res = await fetch('/api/instagram/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_id: postId }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        showToast('Post published to Instagram!', 'success')
+        fetchPosts()
+      } else {
+        showToast(data.error || 'Failed to publish', 'error')
+      }
+    } catch (err) {
+      showToast('Network error. Please try again.', 'error')
+    }
+    setPublishLoading(null)
+  }
+
   const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', {
     day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
   }) : '--'
@@ -74,7 +100,8 @@ export default function ApprovalsPage() {
   return (
     <div className="space-y-6">
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-xl text-white ${toast.type === 'success' ? 'bg-green-500/90' : 'bg-red-500/90'}`}>
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-xl text-white transition-all
+          ${toast.type === 'success' ? 'bg-green-500/90' : 'bg-red-500/90'}`}>
           {toast.msg}
         </div>
       )}
@@ -82,19 +109,19 @@ export default function ApprovalsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Approvals</h1>
-          <p className="mt-1 text-sm text-violet-100/75">Review and approve content before it goes live</p>
+          <p className="mt-1 text-sm text-violet-100/75">Review, approve and publish content</p>
         </div>
         <button onClick={fetchPosts} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all text-sm">
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-          Refresh
+          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         {[
-          { key: 'pending_approval',  label: 'Pending',  count: stats.pending_approval,  border: 'border-yellow-500/30 bg-yellow-500/10', text: 'text-yellow-400' },
-          { key: 'approved', label: 'Approved', count: stats.approved, border: 'border-green-500/30 bg-green-500/10',   text: 'text-green-400'  },
-          { key: 'rejected', label: 'Rejected', count: stats.rejected, border: 'border-red-500/30 bg-red-500/10',       text: 'text-red-400'    },
+          { key: 'pending_approval', label: 'Pending',   count: stats.pending,   border: 'border-yellow-500/30 bg-yellow-500/10', text: 'text-yellow-400' },
+          { key: 'approved',         label: 'Approved',  count: stats.approved,  border: 'border-green-500/30 bg-green-500/10',   text: 'text-green-400'  },
+          { key: 'rejected',         label: 'Rejected',  count: stats.rejected,  border: 'border-red-500/30 bg-red-500/10',       text: 'text-red-400'    },
+          { key: 'published',        label: 'Published', count: stats.published, border: 'border-blue-500/30 bg-blue-500/10',     text: 'text-blue-400'   },
         ].map(s => (
           <button key={s.key} onClick={() => setFilterStatus(s.key)}
             className={`rounded-2xl border p-4 text-left transition-all ${s.border} ${filterStatus === s.key ? 'ring-2 ring-white/20' : 'hover:opacity-80'}`}>
@@ -106,10 +133,11 @@ export default function ApprovalsPage() {
 
       <div className="flex items-center gap-2">
         <Filter size={14} className="text-slate-500" />
-        {['pending_approval', 'approved', 'rejected', 'all'].map(s => (
+        {['pending_approval', 'approved', 'rejected', 'published', 'all'].map(s => (
           <button key={s} onClick={() => setFilterStatus(s)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${filterStatus === s ? 'bg-violet-500 text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`}>
-            {s === 'all' ? 'All Posts' : s}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all
+              ${filterStatus === s ? 'bg-violet-500 text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`}>
+            {s === 'all' ? 'All Posts' : s === 'pending_approval' ? 'Pending' : s}
           </button>
         ))}
       </div>
@@ -121,13 +149,13 @@ export default function ApprovalsPage() {
       ) : posts.length === 0 ? (
         <div className="text-center py-20 rounded-2xl bg-white/5 border border-white/10">
           <AlertCircle size={40} className="text-slate-600 mx-auto mb-3" />
-          <p className="text-slate-400 font-medium">No {filterStatus !== 'all' ? filterStatus : ''} posts found</p>
+          <p className="text-slate-400 font-medium">No {filterStatus !== 'all' ? filterStatus.replace('_', ' ') : ''} posts found</p>
           <p className="text-slate-600 text-sm mt-1">Posts submitted for approval will appear here</p>
         </div>
       ) : (
         <div className="space-y-3">
           {posts.map(post => {
-            const cfg = STATUS_CONFIG[post.status] || STATUS_CONFIG.none
+            const cfg = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft
             return (
               <div key={post.id} className="rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all overflow-hidden">
                 <div className="p-5">
@@ -143,7 +171,7 @@ export default function ApprovalsPage() {
                       <Calendar size={11} /> {formatDate(post.scheduled_at || post.created_at)}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">{post.caption}</p>
+                  <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">{post.caption || post.content}</p>
                   {post.approval_note && (
                     <div className="mt-3 flex items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10">
                       <MessageSquare size={13} className="text-slate-500 mt-0.5 shrink-0" />
@@ -169,6 +197,28 @@ export default function ApprovalsPage() {
                         <CheckCircle size={13} /> Approve
                       </button>
                     </div>
+                  </div>
+                )}
+
+                {post.status === 'approved' && (
+                  <div className="border-t border-white/5 bg-white/[0.02] px-5 py-3 flex items-center justify-between gap-3">
+                    <span className="text-xs text-slate-500">Post approved — ready to publish</span>
+                    <button
+                      disabled={publishLoading === post.id}
+                      onClick={() => handlePublh(post.id)}
+                      className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-pink-500/80 to-violet-500/80 hover:from-pink-500 hover:to-violet-500 text-white text-xs font-semibold transition-all disabled:opacity-50 shadow-lg">
+                      {publishLoading === post.id
+                        ? <><RefreshCw size={13} className="animate-spin" /> Publishing...</>
+                        : <><Send size={13} /> Publish to Instagram</>}
+                    </button>
+                  </div>
+                )}
+
+                {post.status === 'published' && (
+                  <div className="border-t border-white/5 bg-blue-500/5 px-5 py-3">
+                    <span className="text-xs text-blue-400 flex items-center gap-1.5">
+                      <CheckCircle size={13} /> Published to Instagram successfully
+                    </span>
                   </div>
                 )}
 
