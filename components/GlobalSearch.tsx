@@ -58,51 +58,51 @@ export default function GlobalSearch() {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] px-4" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)" }} onClick={() => setOpen(false)}>
       <div className="w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl" style={{ background: "#12122a", border: "1px solid rgba(255,255,255,0.1)" }} onClick={e => e.stopPropagation()}>
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
-          <Search size={16} className="text-white/40 flex-shrink-0"/>
-          <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)} onKeyDown={handleKey} placeholder="Search posts, clients, accounts…" className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none"/>
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-[#e0e0e0]">
+          <Search size={16} className="text-[#1a1a1a]/40 flex-shrink-0"/>
+          <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)} onKeyDown={handleKey} placeholder="Search posts, clients, accounts…" className="flex-1 bg-transparent text-sm text-[#1a1a1a] placeholder:text-[#1a1a1a]/30 focus:outline-none"/>
           <div className="flex items-center gap-2">
-            {loading && <div className="w-3 h-3 rounded-full border border-white/20 border-t-white/60 animate-spin"/>}
-            <kbd className="text-[10px] text-white/20 border border-white/10 rounded px-1.5 py-0.5">ESC</kbd>
-            <button onClick={() => setOpen(false)} className="w-6 h-6 flex items-center justify-center rounded-md text-white/30 hover:text-white hover:bg-white/10"><X ze={13}/></button>
+            {loading && <div className="w-3 h-3 rounded-full border border-[#ccc] border-t-white/60 animate-spin"/>}
+            <kbd className="text-[10px] text-[#1a1a1a]/20 border border-[#e0e0e0] rounded px-1.5 py-0.5">ESC</kbd>
+            <button onClick={() => setOpen(false)} className="w-6 h-6 flex items-center justify-center rounded-md text-[#1a1a1a]/30 hover:text-[#1a1a1a] hover:bg-[#eeeeee]"><X ze={13}/></button>
           </div>
         </div>
         <div className="max-h-[400px] overflow-y-auto">
           {!query && (
             <div className="p-3">
-              <p className="text-[10px] font-semibold text-white/25 uppercase tracking-wider px-2 mb-2">Quick Links</p>
+              <p className="text-[10px] font-semibold text-[#1a1a1a]/25 uppercase tracking-wider px-2 mb-2">Quick Links</p>
               {QUICK_LINKS.map((item, i) => (
-                <button key={item.href} onClick={() => navigate(item.href)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${selected === i ? "bg-white/10" : "hover:bg-white/5"}`}>
+                <button key={item.href} onClick={() => navigate(item.href)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${selected === i ? "bg-[#eeeeee]" : "hover:bg-[#f5f5f5]"}`}>
                   <span style={{ color: item.color }}>{item.icon}</span>
-                  <span className="text-sm text-white/70">{item.label}</span>
-                  <ArrowRight size={12} className="ml-auto text-white/20"/>
+                  <span className="text-sm text-[#1a1a1a]/70">{item.label}</span>
+                  <ArrowRight size={12} className="ml-auto text-[#1a1a1a]/20"/>
                 </button>
               ))}
             </div>
           )}
           {query && allResults.length === 0 && !loading && (
-            <div className="flex flex-col items-center py-10 text-white/30 text-sm"><Search size={24} className="mb-2 text-white/10"/>No results for "{query}"</div>
+            <div className="flex flex-col items-center py-10 text-[#1a1a1a]/30 text-sm"><Search size={24} className="mb-2 text-[#1a1a1a]/10"/>No results for "{query}"</div>
           )}
           {query && allResults.length > 0 && (
             <div className="p-3 space-y-0.5">
               {allResults.map((item, i) => (
-                <button key={i} onClick={() => navigate(item.href)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${selected === i ? "bg-white/10" : "hover:bg-white/5"}`}>
+                <button key={i} onClick={() => navigate(item.href)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${selected === i ? "bg-[#eeeeee]" : "hover:bg-[#f5f5f5]"}`}>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${item.color}20`, color: item.color }}>{item.icon}</div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white/80 truncate">{item.label}</p>
-                    <p className="text-xs text-white/30 truncate capitalize">{item.sub}</p>
+                    <p className="text-sm text-[#1a1a1a]/80 truncate">{item.label}</p>
+                    <p className="text-xs text-[#1a1a1a]/30 truncate capitalize">{item.sub}</p>
                   </div>
-                  <ArrowRight size={12} className="text-white/20 flex-shrink-0"/>
+                  <ArrowRight size={12} className="text-[#1a1a1a]/20 flex-shrink-0"/>
                 </button>
               ))}
             </div>
           )}
         </div>
-        <div className="px-4 py-2 border-t border-white/10 flex items-center gap-4">
-          <span className="text-[10px] text-white/20">↑↓ navigate</span>
-          <span className="text-[10px] text-white/20">↵ open</span>
-          <span className="text-[10px] text-white/20">esc close</span>
-          <span className="text-[10px] text-white/20 ml-auto">⌘K to toggle</span>
+        <div className="px-4 py-2 border-t border-[#e0e0e0] flex items-center gap-4">
+          <span className="text-[10px] text-[#1a1a1a]/20">↑↓ navigate</span>
+          <span className="text-[10px] text-[#1a1a1a]/20">↵ open</span>
+          <span className="text-[10px] text-[#1a1a1a]/20">esc close</span>
+          <span className="text-[10px] text-[#1a1a1a]/20 ml-auto">⌘K to toggle</span>
         </div>
       </div>
     </div>

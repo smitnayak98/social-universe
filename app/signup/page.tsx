@@ -37,12 +37,12 @@ export default function SignupPage(): JSX.Element {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0f0a2e] text-white">
-      <div className="absolute -left-24 top-20 h-64 w-64 rounded-full bg-violet-500/25 blur-3xl" />
+    <div className="relative min-h-screen overflow-hidden bg-[#0f0a2e] text-[#1a1a1a]">
+      <div className="absolute -left-24 top-20 h-64 w-64 rounded-full bg-[#f5c800]/25 blur-3xl" />
       <div className="absolute bottom-10 right-10 h-72 w-72 rounded-full bg-indigo-400/20 blur-3xl" />
 
       <div className="relative mx-auto flex min-h-screen max-w-6xl items-center justify-center p-6">
-        <div className="grid w-full max-w-5xl gap-10 rounded-3xl border border-white/10 bg-white/[0.03] p-8 shadow-2xl shadow-black/50 backdrop-blur xl:grid-cols-2 xl:p-12">
+        <div className="grid w-full max-w-5xl gap-10 rounded-3xl border border-[#e0e0e0] bg-white p-8 shadow-2xl shadow-black/50 backdrop-blur xl:grid-cols-2 xl:p-12">
           <section className="flex flex-col justify-center">
             <SocialLogo />
             <h1 className="mt-8 text-5xl font-semibold leading-tight tracking-tight">Social Universe</h1>
@@ -51,49 +51,49 @@ export default function SignupPage(): JSX.Element {
             </p>
           </section>
 
-          <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-7">
+          <section className="rounded-2xl border border-[#e0e0e0] bg-[#fafafa] p-7">
             <h2 className="text-2xl font-semibold">Create account</h2>
-            <p className="mt-1 text-sm text-violet-100/75">Start managing your agency today.</p>
+            <p className="mt-1 text-sm text-[#555]">Start managing your agency today.</p>
 
             <div className="mt-6 space-y-4">
               <div>
-                <label className="mb-2 block text-sm text-violet-100/85">Full Name</label>
+                <label className="mb-2 block text-sm text-[#333]">Full Name</label>
                 <input
                   type="text"
                   placeholder="Your name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-[#130d3b] px-4 py-3 text-sm outline-none ring-violet-400 transition focus:ring"
+                  className="w-full rounded-xl border border-[#e0e0e0] bg-[#f0f0f0] px-4 py-3 text-sm outline-none ring-[#f5c800] transition focus:ring"
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm text-violet-100/85">Agency Name</label>
+                <label className="mb-2 block text-sm text-[#333]">Agency Name</label>
                 <input
                   type="text"
                   placeholder="Your agency"
                   value={agencyName}
                   onChange={(e) => setAgencyName(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-[#130d3b] px-4 py-3 text-sm outline-none ring-violet-400 transition focus:ring"
+                  className="w-full rounded-xl border border-[#e0e0e0] bg-[#f0f0f0] px-4 py-3 text-sm outline-none ring-[#f5c800] transition focus:ring"
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm text-violet-100/85">Email</label>
+                <label className="mb-2 block text-sm text-[#333]">Email</label>
                 <input
                   type="email"
                   placeholder="you@agency.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-[#130d3b] px-4 py-3 text-sm outline-none ring-violet-400 transition focus:ring"
+                  className="w-full rounded-xl border border-[#e0e0e0] bg-[#f0f0f0] px-4 py-3 text-sm outline-none ring-[#f5c800] transition focus:ring"
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm text-violet-100/85">Password</label>
+                <label className="mb-2 block text-sm text-[#333]">Password</label>
                 <input
                   type="password"
                   placeholder="Min 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-[#130d3b] px-4 py-3 text-sm outline-none ring-violet-400 transition focus:ring"
+                  className="w-full rounded-xl border border-[#e0e0e0] bg-[#f0f0f0] px-4 py-3 text-sm outline-none ring-[#f5c800] transition focus:ring"
                 />
               </div>
 
@@ -103,14 +103,14 @@ export default function SignupPage(): JSX.Element {
                 type="button"
                 onClick={handleSignup}
                 disabled={loading}
-                className="mt-2 w-full rounded-xl bg-[#7F77DD] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#938ce8] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="mt-2 w-full rounded-xl bg-[#f5c800] px-4 py-3 text-sm font-semibold text-[#1a1a1a] transition hover:bg-[#e0b800] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Creating account..." : "Create Account"}
               </button>
 
               <p className="text-center text-sm text-violet-100/60">
                 Already have an account?{" "}
-                <a href="/login" className="text-violet-400 hover:underline">
+                <a href="/login" className="text-[#b8930a] hover:underline">
                   Login
                 </a>
               </p>

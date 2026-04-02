@@ -14,7 +14,7 @@ const STATUS_CONFIG = {
   approved:         { label: 'Approved',  color: 'bg-green-500/20 text-green-400 border-green-500/30'   },
   rejected:         { label: 'Rejected',  color: 'bg-red-500/20 text-red-400 border-red-500/30'         },
   published:        { label: 'Published', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30'      },
-  draft:            { label: 'Draft',     color: 'bg-slate-500/20 text-slate-400 border-slate-500/30'   },
+  draft:            { label: 'Draft',     color: 'bg-slate-500/20 text-[#666] border-slate-500/30'   },
   scheduled:        { label: 'Scheduled', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30'},
 }
 
@@ -100,7 +100,7 @@ export default function ApprovalsPage() {
   return (
     <div className="space-y-6">
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-xl text-white transition-all
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-xl text-[#1a1a1a] transition-all
           ${toast.type === 'success' ? 'bg-green-500/90' : 'bg-red-500/90'}`}>
           {toast.msg}
         </div>
@@ -109,9 +109,9 @@ export default function ApprovalsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Approvals</h1>
-          <p className="mt-1 text-sm text-violet-100/75">Review, approve and publish content</p>
+          <p className="mt-1 text-sm text-[#555]">Review, approve and publish content</p>
         </div>
-        <button onClick={fetchPosts} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all text-sm">
+        <button onClick={fetchPosts} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#f5f5f5] hover:bg-[#eeeeee] text-[#666] hover:text-[#1a1a1a] transition-all text-sm">
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
       </div>
@@ -125,18 +125,18 @@ export default function ApprovalsPage() {
         ].map(s => (
           <button key={s.key} onClick={() => setFilterStatus(s.key)}
             className={`rounded-2xl border p-4 text-left transition-all ${s.border} ${filterStatus === s.key ? 'ring-2 ring-white/20' : 'hover:opacity-80'}`}>
-            <div className="text-xs font-medium uppercase tracking-wider text-white/60 mb-1">{s.label}</div>
+            <div className="text-xs font-medium uppercase tracking-wider text-[#1a1a1a]/60 mb-1">{s.label}</div>
             <div className={`text-3xl font-bold ${s.text}`}>{s.count}</div>
           </button>
         ))}
       </div>
 
       <div className="flex items-center gap-2">
-        <Filter size={14} className="text-slate-500" />
+        <Filter size={14} className="text-[#777]" />
         {['pending_approval', 'approved', 'rejected', 'published', 'all'].map(s => (
           <button key={s} onClick={() => setFilterStatus(s)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all
-              ${filterStatus === s ? 'bg-violet-500 text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`}>
+              ${filterStatus === s ? 'bg-[#f5c800] text-[#1a1a1a]' : 'bg-[#f5f5f5] text-[#666] hover:bg-[#eeeeee]'}`}>
             {s === 'all' ? 'All Posts' : s === 'pending_approval' ? 'Pending' : s}
           </button>
         ))}
@@ -144,46 +144,46 @@ export default function ApprovalsPage() {
 
       {loading ? (
         <div className="space-y-3">
-          {[1,2,3].map(i => <div key={i} className="rounded-2xl bg-white/5 border border-white/10 p-5 animate-pulse h-24" />)}
+          {[1,2,3].map(i => <div key={i} className="rounded-2xl bg-[#f5f5f5] border border-[#e0e0e0] p-5 animate-pulse h-24" />)}
         </div>
       ) : posts.length === 0 ? (
-        <div className="text-center py-20 rounded-2xl bg-white/5 border border-white/10">
-          <AlertCircle size={40} className="text-slate-600 mx-auto mb-3" />
-          <p className="text-slate-400 font-medium">No {filterStatus !== 'all' ? filterStatus.replace('_', ' ') : ''} posts found</p>
-          <p className="text-slate-600 text-sm mt-1">Posts submitted for approval will appear here</p>
+        <div className="text-center py-20 rounded-2xl bg-[#f5f5f5] border border-[#e0e0e0]">
+          <AlertCircle size={40} className="text-[#888] mx-auto mb-3" />
+          <p className="text-[#666] font-medium">No {filterStatus !== 'all' ? filterStatus.replace('_', ' ') : ''} posts found</p>
+          <p className="text-[#888] text-sm mt-1">Posts submitted for approval will appear here</p>
         </div>
       ) : (
         <div className="space-y-3">
           {posts.map(post => {
             const cfg = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft
             return (
-              <div key={post.id} className="rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all overflow-hidden">
+              <div key={post.id} className="rounded-2xl bg-white border border-[#e0e0e0] hover:border-[#ccc] transition-all overflow-hidden">
                 <div className="p-5">
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border ${cfg.color}`}>
                       {cfg.label}
                     </span>
-                    {post.clients?.name && <span className="text-xs text-slate-500">{post.clients.name}</span>}
+                    {post.clients?.name && <span className="text-xs text-[#777]">{post.clients.name}</span>}
                     {(post.platforms || []).map(p => (
-                      <span key={p} className="px-2 py-0.5 rounded-md text-xs bg-white/5 border border-white/10 text-slate-400 capitalize">{p}</span>
+                      <span key={p} className="px-2 py-0.5 rounded-md text-xs bg-[#f5f5f5] border border-[#e0e0e0] text-[#666] capitalize">{p}</span>
                     ))}
-                    <span className="text-xs text-slate-600 ml-auto flex items-center gap-1">
+                    <span className="text-xs text-[#888] ml-auto flex items-center gap-1">
                       <Calendar size={11} /> {formatDate(post.scheduled_at || post.created_at)}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">{post.caption || post.content}</p>
+                  <p className="text-sm text-[#444] leading-relaxed line-clamp-3">{post.caption || post.content}</p>
                   {post.approval_note && (
-                    <div className="mt-3 flex items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10">
-                      <MessageSquare size={13} className="text-slate-500 mt-0.5 shrink-0" />
-                      <p className="text-xs text-slate-400 italic">{post.approval_note}</p>
+                    <div className="mt-3 flex items-start gap-2 p-3 rounded-xl bg-[#f5f5f5] border border-[#e0e0e0]">
+                      <MessageSquare size={13} className="text-[#777] mt-0.5 shrink-0" />
+                      <p className="text-xs text-[#666] italic">{post.approval_note}</p>
                     </div>
                   )}
                 </div>
 
                 {post.status === 'pending_approval' && (
-                  <div className="border-t border-white/5 bg-white/[0.02] px-5 py-3 flex items-center justify-between gap-3">
+                  <div className="border-t border-[#eee] bg-[#fafafa] px-5 py-3 flex items-center justify-between gap-3">
                     <button onClick={() => setSelectedPost(selectedPost?.id === post.id ? null : post)}
-                      className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors">
+                      className="flex items-center gap-1.5 text-xs text-[#777] hover:text-[#444] transition-colors">
                       <Eye size={13} /> Add note
                       <ChevronDown size={13} className={`transition-transform ${selectedPost?.id === post.id ? 'rotate-180' : ''}`} />
                     </button>
@@ -201,12 +201,12 @@ export default function ApprovalsPage() {
                 )}
 
                 {post.status === 'approved' && (
-                  <div className="border-t border-white/5 bg-white/[0.02] px-5 py-3 flex items-center justify-between gap-3">
-                    <span className="text-xs text-slate-500">Post approved — ready to publish</span>
+                  <div className="border-t border-[#eee] bg-[#fafafa] px-5 py-3 flex items-center justify-between gap-3">
+                    <span className="text-xs text-[#777]">Post approved — ready to publish</span>
                     <button
                       disabled={publishLoading === post.id}
                       onClick={() => handlePublh(post.id)}
-                      className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-pink-500/80 to-violet-500/80 hover:from-pink-500 hover:to-violet-500 text-white text-xs font-semibold transition-all disabled:opacity-50 shadow-lg">
+                      className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-pink-500/80 to-violet-500/80 hover:from-pink-500 hover:to-violet-500 text-[#1a1a1a] text-xs font-semibold transition-all disabled:opacity-50 shadow-lg">
                       {publishLoading === post.id
                         ? <><RefreshCw size={13} className="animate-spin" /> Publishing...</>
                         : <><Send size={13} /> Publish to Instagram</>}
@@ -215,7 +215,7 @@ export default function ApprovalsPage() {
                 )}
 
                 {post.status === 'published' && (
-                  <div className="border-t border-white/5 bg-blue-500/5 px-5 py-3">
+                  <div className="border-t border-[#eee] bg-blue-500/5 px-5 py-3">
                     <span className="text-xs text-blue-400 flex items-center gap-1.5">
                       <CheckCircle size={13} /> Published to Instagram successfully
                     </span>
@@ -223,14 +223,14 @@ export default function ApprovalsPage() {
                 )}
 
                 {selectedPost?.id === post.id && post.status === 'pending_approval' && (
-                  <div className="border-t border-white/10 bg-black/20 p-5">
-                    <label className="block text-xs text-slate-400 font-medium mb-2">Review Note <span className="text-slate-600">(optional)</span></label>
+                  <div className="border-t border-[#e0e0e0] bg-black/20 p-5">
+                    <label className="block text-xs text-[#666] font-medium mb-2">Review Note <span className="text-[#888]">(optional)</span></label>
                     <textarea value={noteText} onChange={e => setNoteText(e.target.value)}
                       placeholder="Add feedback for the content creator..."
-                      rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all" />
+                      rows={3} className="w-full bg-[#f5f5f5] border border-[#e0e0e0] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] placeholder-slate-600 resize-none focus:outline-none focus:ring-2 focus:ring-[#f5c800]/50 transition-all" />
                     <div className="flex items-center justify-end gap-2 mt-3">
                       <button onClick={() => { setSelectedPost(null); setNoteText('') }}
-                        className="px-3 py-1.5 rounded-lg text-xs text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 transition-all">
+                        className="px-3 py-1.5 rounded-lg text-xs text-[#777] hover:text-[#1a1a1a] bg-[#f5f5f5] hover:bg-[#eeeeee] transition-all">
                         Cancel
                       </button>
                       <button disabled={actionLoading === post.id} onClick={() => handleAction(post.id, 'rejected', noteText)}

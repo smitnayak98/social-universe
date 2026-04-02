@@ -268,21 +268,21 @@ export default function CreatePostPage() {
     <div className="space-y-6">
       {toast && (
         <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-xl
-          ${toast.type === "success" ? "bg-green-500/90 text-white" : "bg-red-500/90 text-white"}`}>
+          ${toast.type === "success" ? "bg-green-500/90 text-[#1a1a1a]" : "bg-red-500/90 text-[#1a1a1a]"}`}>
           {toast.msg}
         </div>
       )}
       <header>
         <h1 className="text-3xl font-semibold tracking-tight">Create Post</h1>
-        <p className="mt-2 text-sm text-violet-100/75">Compose, schedule, and route content for client approval.</p>
+        <p className="mt-2 text-sm text-[#555]">Compose, schedule, and route content for client approval.</p>
       </header>
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+      <section className="rounded-2xl border border-[#e0e0e0] bg-white p-6">
         <form className="grid gap-5" onSubmit={e => e.preventDefault()}>
           <div className="grid gap-4 md:grid-cols-2">
             <label className="space-y-2 text-sm">
-              <span className="text-violet-100/85">Client</span>
+              <span className="text-[#333]">Client</span>
               <select value={clientId} onChange={e => setClientId(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#130d3b] px-3 py-2.5 outline-none ring-violet-400 focus:ring">
+                className="w-full rounded-xl border border-[#e0e0e0] bg-[#f0f0f0] px-3 py-2.5 outline-none ring-[#f5c800] focus:ring">
                 {clients.length === 0 && <option value="">No clients available</option>}
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -292,9 +292,9 @@ export default function CreatePostPage() {
               </select>
             </label>
             <label className="space-y-2 text-sm">
-              <span className="text-violet-100/85">Content Type</span>
+              <span className="text-[#333]">Content Type</span>
               <select value={contentType} onChange={e => setContentType(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#130d3b] px-3 py-2.5 outline-none ring-violet-400 focus:ring">
+                className="w-full rounded-xl border border-[#e0e0e0] bg-[#f0f0f0] px-3 py-2.5 outline-none ring-[#f5c800] focus:ring">
                 <option>Post</option>
                 <option>Reel</option>
                 <option>Story</option>
@@ -303,49 +303,49 @@ export default function CreatePostPage() {
             </label>
           </div>
           <label className="space-y-2 text-sm">
-            <span className="text-violet-100/85">Caption</span>
+            <span className="text-[#333]">Caption</span>
             <textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={6}
               placeholder="Write a compelling caption for your audience..."
-              className="w-full rounded-xl border border-white/10 bg-[#130d3b] px-3 py-3 outline-none ring-violet-400 focus:ring" />
-            <p className={`text-right text-xs ${left < 100 ? "text-red-400" : "text-violet-100/65"}`}>
+              className="w-full rounded-xl border border-[#e0e0e0] bg-[#f0f0f0] px-3 py-3 outline-none ring-[#f5c800] focus:ring" />
+            <p className={`text-right text-xs ${left < 100 ? "text-red-400" : "text-[#666]"}`}>
               {caption.length} / {maxChars} ({left} left)
             </p>
           </label>
           <div className="space-y-2 text-sm">
-            <span className="text-violet-100/85">Media <span className="text-violet-100/40">(optional · max 10MB each)</span></span>
+            <span className="text-[#333]">Media <span className="text-[#999]">(optional · max 10MB each)</span></span>
             <MediaUploader onMediaChange={setMediaFiles} onUploadingChange={setUploading} maxFiles={15} />
           </div>
           <fieldset>
-            <legend className="mb-2 text-sm text-violet-100/85">Platforms</legend>
+            <legend className="mb-2 text-sm text-[#333]">Platforms</legend>
             <div className="flex flex-wrap gap-3 text-sm">
               {PLATFORM_OPTIONS.map(({ id, label }) => (
                 <label key={id}
                   className={`flex items-center gap-2 rounded-lg border px-3 py-2 cursor-pointer transition
-                    ${platforms.includes(id) ? "border-violet-400/50 bg-violet-500/10 text-white" : "border-white/10 bg-white/[0.02] text-violet-100/60"}`}>
+                    ${platforms.includes(id) ? "border-violet-400/50 bg-[#f5c800]/10 text-[#1a1a1a]" : "border-[#e0e0e0] bg-[#fafafa] text-violet-100/60"}`}>
                   <input type="checkbox" checked={platforms.includes(id)} onChange={() => togglePlatform(id)}
-                    className="h-4 w-4 accent-violet-400" />
+                    className="h-4 w-4 accent-[#f5c800]" />
                   <span>{label}</span>
                 </label>
               ))}
             </div>
           </fieldset>
           <label className="space-y-2 text-sm md:max-w-sm">
-            <span className="text-violet-100/85">Schedule Date & Time</span>
+            <span className="text-[#333]">Schedule Date & Time</span>
             <input type="datetime-local" value={scheduleAt} onChange={e => setScheduleAt(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#130d3b] px-3 py-2.5 outline-none ring-violet-400 focus:ring" />
+              className="w-full rounded-xl border border-[#e0e0e0] bg-[#f0f0f0] px-3 py-2.5 outline-none ring-[#f5c800] focus:ring" />
           </label>
           <div className="flex flex-wrap gap-3 pt-2">
 
             <button type="button" disabled={loading} onClick={() => handleSubmit("scheduled")}
-              className="rounded-xl bg-[#7F77DD] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#938ce8] disabled:opacity-50">
+              className="rounded-xl bg-[#f5c800] px-4 py-2.5 text-sm font-semibold text-[#1a1a1a] transition hover:bg-[#e0b800] disabled:opacity-50">
               {loading ? "Saving..." : "Schedule"}
             </button>
             <button type="button" disabled={loading || uploading} onClick={handlePublishNow}
-              className="rounded-xl bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-50 shadow-lg">
+              className="rounded-xl bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 px-4 py-2.5 text-sm font-semibold text-[#1a1a1a] transition disabled:opacity-50 shadow-lg">
               {uploading ? "Uploading media..." : loading ? "Publishing..." : "Publish Now to Instagram"}
             </button>
             <button type="button" disabled={loading} onClick={() => handleSubmit("draft")}
-              className="rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold text-violet-100 transition hover:bg-white/10 disabled:opacity-50">
+              className="rounded-xl border border-[#ccc] px-4 py-2.5 text-sm font-semibold text-violet-100 transition hover:bg-[#eeeeee] disabled:opacity-50">
               {loading ? "Saving..." : "Save Draft"}
             </button>
           </div>

@@ -33,7 +33,7 @@ export default function NewPostPage() {
         <div><label className="text-sm font-medium text-gray-700">Platform</label>
           <div className="mt-1 flex gap-2 flex-wrap">
             {['instagram','twitter','linkedin','facebook','tiktok'].map(p => (
-              <button key={p} type="button" onClick={() => setForm(f => ({ ...f, platform: p }))} className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${form.platform === p ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'}`}>{p.charAt(0).toUpperCase() + p.slice(1)}</button>
+              <button key={p} type="button" onClick={() => setForm(f => ({ ...f, platform: p }))} className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${form.platform === p ? 'bg-blue-600 text-[#1a1a1a] border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'}`}>{p.charAt(0).toUpperCase() + p.slice(1)}</button>
             ))}
           </div>
         </div>
@@ -48,7 +48,7 @@ export default function NewPostPage() {
         {error && <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-red-600 text-sm">{error}</div>}
         <div className="flex gap-3 pt-2">
           <button onClick={() => handleSubmit('draft')} disabled={saving} className="flex-1 border rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 disabled:opacity-50">Save as Draft</button>
-          <button onClick={() => handleSubmit('scheduled')} disabled={saving || !form.scheduled_at} className="flex-1 bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">{saving ? 'Saving...' : '📅 Schedule Post'}</button>
+          <button onClick={() => handleSubmit('scheduled')} disabled={saving || !form.scheduled_at} className="flex-1 bg-blue-600 text-[#1a1a1a] rounded-lg py-2.5 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">{saving ? 'Saving...' : '📅 Schedule Post'}</button>
         </div>
       </div>
     </div>

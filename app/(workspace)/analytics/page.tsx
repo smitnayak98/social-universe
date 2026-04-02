@@ -138,7 +138,7 @@ export default function AnalyticsPage() {
         sumMetric(previousWindow, "followers"),
       ),
       icon: <Users size={15} />,
-      tone: "text-violet-300",
+      tone: "text-[#b8930a]",
     },
     {
       key: "reach",
@@ -146,7 +146,7 @@ export default function AnalyticsPage() {
       value: latest.reach,
       delta: formatDelta(sumMetric(currentWindow, "reach"), sumMetric(previousWindow, "reach")),
       icon: <Activity size={15} />,
-      tone: "text-indigo-300",
+      tone: "text-[#b8930a]",
     },
     {
       key: "impressions",
@@ -183,8 +183,8 @@ export default function AnalyticsPage() {
   if (!rows.length) {
     return (
       <div className="mx-auto max-w-7xl space-y-5 p-6">
-        <h1 className="text-3xl font-semibold tracking-tight text-white">Analytics</h1>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-12 text-center">
+        <h1 className="text-3xl font-semibold tracking-tight text-[#1a1a1a]">Analytics</h1>
+        <div className="rounded-2xl border border-[#e0e0e0] bg-white p-12 text-center">
           <p className="text-sm text-violet-100/70">
             No data in analytics snapshots yet. Connect social accounts and sync snapshots.
           </p>
@@ -197,7 +197,7 @@ export default function AnalyticsPage() {
     <div className="mx-auto max-w-7xl space-y-6 p-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-white">Analytics</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#1a1a1a]">Analytics</h1>
           <p className="mt-1 text-sm text-violet-100/70">
             Snapshot trends from connected social accounts.
           </p>
@@ -208,13 +208,13 @@ export default function AnalyticsPage() {
         {kpis.map((card) => (
           <article
             key={card.key}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-lg shadow-black/15"
+            className="rounded-2xl border border-[#e0e0e0] bg-white p-5 shadow-lg shadow-black/15"
           >
-            <div className={`mb-3 inline-flex rounded-lg bg-white/5 p-2 ${card.tone}`}>
+            <div className={`mb-3 inline-flex rounded-lg bg-[#f5f5f5] p-2 ${card.tone}`}>
               {card.icon}
             </div>
-            <p className="text-xs uppercase tracking-wide text-violet-100/65">{card.label}</p>
-            <p className="mt-1 text-2xl font-semibold text-white tabular-nums">
+            <p className="text-xs uppercase tracking-wide text-[#666]">{card.label}</p>
+            <p className="mt-1 text-2xl font-semibold text-[#1a1a1a] tabular-nums">
               {formatKpi(card.value)}
             </p>
             <p className="mt-2 text-xs text-violet-200/70">{card.delta}</p>
@@ -222,8 +222,8 @@ export default function AnalyticsPage() {
         ))}
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <h2 className="mb-4 text-sm font-semibold text-white/90">Followers Trend</h2>
+      <section className="rounded-2xl border border-[#e0e0e0] bg-white p-5">
+        <h2 className="mb-4 text-sm font-semibold text-[#1a1a1a]/90">Followers Trend</h2>
         <ResponsiveContainer width="100%" height={280}>
           <AreaChart data={dailySeries}>
             <defs>
@@ -257,8 +257,8 @@ export default function AnalyticsPage() {
         </ResponsiveContainer>
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <h2 className="mb-4 text-sm font-semibold text-white/90">Reach vs Impressions</h2>
+      <section className="rounded-2xl border border-[#e0e0e0] bg-white p-5">
+        <h2 className="mb-4 text-sm font-semibold text-[#1a1a1a]/90">Reach vs Impressions</h2>
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={dailySeries}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />

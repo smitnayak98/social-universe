@@ -32,26 +32,26 @@ export default function NewClientPage() {
         </div>
       )}
       <div className="flex items-center gap-4">
-        <button onClick={()=>router.push('/clients')} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 transition-colors"><ArrowLeft size={16}/></button>
-        <div><h1 className="text-2xl font-bold text-white">Add Client</h1><p className="text-white/40 text-sm">Create a new client profile</p></div>
+        <button onClick={()=>router.push('/clients')} className="p-2 rounded-xl bg-[#f5f5f5] hover:bg-[#eeeeee] text-[#1a1a1a]/60 transition-colors"><ArrowLeft size={16}/></button>
+        <div><h1 className="text-2xl font-bold text-[#1a1a1a]">Add Client</h1><p className="text-[#1a1a1a]/40 text-sm">Create a new client profile</p></div>
       </div>
-      <div className="bg-[#0f0f1a] border border-white/10 rounded-2xl p-6 space-y-5">
+      <div className="bg-white border border-[#e0e0e0] rounded-2xl p-6 space-y-5">
         {[['name','Client name *','text','e.g. Acme Corp'],['email','Email','email','client@example.com'],['phone','Phone','tel','+91 98765 43210'],['website','Website','url','https://example.com']].map(([k,label,type,ph]:any)=>(
           <div key={k}>
-            <label className="text-white/50 text-xs font-medium mb-1.5 block">{label}</label>
+            <label className="text-[#1a1a1a]/50 text-xs font-medium mb-1.5 block">{label}</label>
             <input type={type} value={(form as any)[k]} onChange={e=>set(k,e.target.value)} placeholder={ph}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/20 focus:outline-none focus:border-purple-500/50"/>
+              className="w-full bg-[#f5f5f5] border border-[#e0e0e0] rounded-xl px-4 py-3 text-[#1a1a1a] text-sm placeholder-white/20 focus:outline-none focus:border-purple-500/50"/>
           </div>
         ))}
         <div>
-          <label className="text-white/50 text-xs font-medium mb-1.5 block">Status</label>
-          <select value={form.status} onChange={e=>set('status',e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500/50">
+          <label className="text-[#1a1a1a]/50 text-xs font-medium mb-1.5 block">Status</label>
+          <select value={form.status} onChange={e=>set('status',e.target.value)} className="w-full bg-[#f5f5f5] border border-[#e0e0e0] rounded-xl px-4 py-3 text-[#1a1a1a] text-sm focus:outline-none focus:border-purple-500/50">
             <option value="active">Active</option><option value="inactive">Inactive</option><option value="paused">Paused</option>
           </select>
         </div>
-        <div className="flex gap-3 pt-2 border-t border-white/5">
-          <button onClick={()=>router.push('/clients')} className="px-4 py-2.5 rounded-xl border border-white/15 text-white/60 hover:text-white text-sm transition-all">Cancel</button>
-          <button onClick={save} disabled={saving} className="flex-1 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+        <div className="flex gap-3 pt-2 border-t border-[#eee]">
+          <button onClick={()=>router.push('/clients')} className="px-4 py-2.5 rounded-xl border border-white/15 text-[#1a1a1a]/60 hover:text-[#1a1a1a] text-sm transition-all">Cancel</button>
+          <button onClick={save} disabled={saving} className="flex-1 bg-purple-600 hover:bg-purple-500 text-[#1a1a1a] px-4 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
             {saving?'Creating...':'Create client'}
           </button>
         </div>

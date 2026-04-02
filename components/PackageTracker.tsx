@@ -28,12 +28,12 @@ function ProgressBar({ used, total, label }: { used: number; total: number; labe
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs">
-        <span className="text-slate-400">{label}</span>
-        <span className={over ? 'text-red-400 font-semibold' : 'text-slate-400'}>
+        <span className="text-[#666]">{label}</span>
+        <span className={over ? 'text-red-400 font-semibold' : 'text-[#666]'}>
           {used} / {total}
           {over && ' ⚠️ Over limit!'}
         </span>
-      </div    <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+      </div    <div className="h-1.5 w-full bg-[#eeeeee] rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${color}`}
           style={{ width: `${pct}%` }}
@@ -103,13 +103,13 @@ export default function PackageTracker({ clientId }: { clientId?: string }) {
   if (loading) return (
     <div className="space-y-3">
       {[1,2].map(i => (
-        <div key={i} className="rounded-2xl bg-white/5 border border-white/10 p-4 animate-pulse h-28" />
+        <div key={i} className="rounded-2xl bg-[#f5f5f5] border border-[#e0e0e0] p-4 animate-pulse h-28" />
       ))}
     </div>
   )
 
   if (data.length === 0) return (
-    <div className="text-center py-8 text-slate-500 text-sm">
+    <div className="text-center py-8 text-[#777] text-sm">
       No clients found. Add clients and set their package limits.
     </div>
   )
@@ -125,9 +125,9 @@ export default function PackageTracker({ clientId }: { clientId?: string }) {
             className={`rounded-2xl border p-4 transition-all
               ${anyOver
                 ? 'border-red-500/30 bg-red-500/5'
-                : 'border-white/10 bg-white/[0.03]'}`}>
+                : 'border-[#e0e0e0] bg-white'}`}>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-white">{c.client_name}</h3>
+              <h3 className="text-sm font-semibold text-[#1a1a1a]">{c.client_name}</h3>
               {anyOver
                 ? <span className="text-xs text-red-400 font-medium">Over limit</span>
                 : <span className="text-xs text-green-400">On track</span>}

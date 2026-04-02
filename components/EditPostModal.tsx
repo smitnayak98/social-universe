@@ -114,16 +114,16 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
         style={{ background: "var(--card, #1a1a2e)", border: "1px solid rgba(255,255,255,0.08)" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#e0e0e0]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
-              <Save size={16} className="text-indigo-400" />
+            <div className="w-8 h-8 rounded-lg bg-[#f5c800]/20 flex items-center justify-center">
+              <Save size={16} className="text-[#b8930a]" />
             </div>
-            <h2 className="text-base font-semibold text-white">Edit Post</h2>
+            <h2 className="text-base font-semibold text-[#1a1a1a]">Edit Post</h2>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#1a1a1a]/40 hover:text-[#1a1a1a] hover:bg-[#eeeeee] transition-all"
           >
             <X size={16} />
           </button>
@@ -134,11 +134,11 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
           {/* Client + Platform row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Client</label>
+              <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider mb-1.5 block">Client</label>
               <select
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
-                className="w-full rounded-lg px-3 py-2 text-sm text-white bg-white/5 border border-white/10 focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all"
+                className="w-full rounded-lg px-3 py-2 text-sm text-[#1a1a1a] bg-[#f5f5f5] border border-[#e0e0e0] focus:border-[#f5c800]/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all"
               >
                 <option value="">No client</option>
                 {clients.map((c) => (
@@ -147,11 +147,11 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Platform</label>
+              <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider mb-1.5 block">Platform</label>
               <select
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value)}
-                className="w-full rounded-lg px-3 py-2 text-sm text-white bg-white/5 border border-white/10 focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all capitalize"
+                className="w-full rounded-lg px-3 py-2 text-sm text-[#1a1a1a] bg-[#f5f5f5] border border-[#e0e0e0] focus:border-[#f5c800]/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all capitalize"
               >
                 {PLATFORMS.map((p) => (
                   <option key={p} value={p} className="capitalize">{p.charAt(0).toUpperCase() + p.slice(1)}</option>
@@ -162,31 +162,31 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
 
           {/* Content */}
           <div>
-            <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Caption</label>
+            <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider mb-1.5 block">Caption</label>
             <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               rows={5}
               placeholder="Write your caption..."
-              className="w-full rounded-lg px-3 py-2.5 text-sm text-white bg-white/5 border border-white/10 focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all resize-none placeholder:text-white/20"
+              className="w-full rounded-lg px-3 py-2.5 text-sm text-[#1a1a1a] bg-[#f5f5f5] border border-[#e0e0e0] focus:border-[#f5c800]/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all resize-none placeholder:text-[#1a1a1a]/20"
             />
             {/* Character counter */}
             <div className="flex items-center justify-between mt-1.5">
               <div className="flex items-center gap-1.5">
-                <Hash size={11} className="text-white/30" />
-                <span className="text-xs text-white/30">{platform} limit: {limit.toLocaleString()} chars</span>
+                <Hash size={11} className="text-[#1a1a1a]/30" />
+                <span className="text-xs text-[#1a1a1a]/30">{platform} limit: {limit.toLocaleString()} chars</span>
               </div>
               <span className={`text-xs font-mono font-semibold tabular-nums ${
-                isOverLimit ? "text-red-400" : remaining < limit * 0.1 ? "text-amber-400" : "text-white/40"
+                isOverLimit ? "text-red-400" : remaining < limit * 0.1 ? "text-amber-400" : "text-[#1a1a1a]/40"
               }`}>
                 {remaining.toLocaleString()}
               </span>
             </div>
             {/* Progress bar */}
-            <div className="mt-1 h-0.5 rounded-full bg-white/5 overflow-hidden">
+            <div className="mt-1 h-0.5 rounded-full bg-[#f5f5f5] overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-300 ${
-                  isOverLimit ? "bg-red-500" : remaining < limit * 0.1 ? "bg-amber-400" : "bg-indigo-500"
+                  isOverLimit ? "bg-red-500" : remaining < limit * 0.1 ? "bg-amber-400" : "bg-[#f5c800]"
                 }`}
                 style={{ width: `${Math.min((caption.length / limit) * 100, 100)}%` }}
               />
@@ -196,11 +196,11 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
           {/* Status + Scheduled At row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Status</label>
+              <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider mb-1.5 block">Status</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full rounded-lg px-3 py-2 text-sm text-white bg-white/5 border border-white/10 focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all"
+                className="w-full rounded-lg px-3 py-2 text-sm text-[#1a1a1a] bg-[#f5f5f5] border border-[#e0e0e0] focus:border-[#f5c800]/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all"
               >
                 {STATUSES.map((s) => (
                   <option key={s} value={s} className="capitalize">{s.charAt(0).toUpperCase() + s.slice(1)}</option>
@@ -208,7 +208,7 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block flex items-center gap-1">
+              <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider mb-1.5 block flex items-center gap-1">
                 <Calendar size={11} />
                 Schedule Date
               </label>
@@ -216,7 +216,7 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
                 type="datetime-local"
                 value={scheduledAt}
                 onChange={(e) => setScheduledAt(e.target.value)}
-                className="w-full rounded-lg px-3 py-2 text-sm text-white bg-white/5 border border-white/10 focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all"
+                className="w-full rounded-lg px-3 py-2 text-sm text-[#1a1a1a] bg-[#f5f5f5] border border-[#e0e0e0] focus:border-[#f5c800]/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all"
               />
             </div>
           </div>
@@ -228,17 +228,17 @@ export default function EditPostModal({ post, onClose, onSaved }: EditPostModalP
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#e0e0e0]">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all"
+            className="px-4 py-2 rounded-lg text-sm font-medium text-[#1a1a1a]/60 hover:text-[#1a1a1a] hover:bg-[#f5f5f5] transition-all"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving || isOverLimit}
-            className="px-5 py-2 rounded-lg text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-all flex items-center gap-2"
+            className="px-5 py-2 rounded-lg text-sm font-semibold bg-[#f5c800] hover:bg-[#f5c800] disabled:opacity-40 disabled:cursor-not-allowed text-[#1a1a1a] transition-all flex items-center gap-2"
           >
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             {saving ? "Saving…" : "Save Changes"}

@@ -18,10 +18,10 @@ type ToastContextValue = {
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 const TYPE_STYLES: Record<ToastType, string> = {
-  success: "bg-emerald-500/95 text-white border-emerald-300/70",
-  error: "bg-rose-500/95 text-white border-rose-300/70",
+  success: "bg-emerald-500/95 text-[#1a1a1a] border-emerald-300/70",
+  error: "bg-rose-500/95 text-[#1a1a1a] border-rose-300/70",
   warning: "bg-amber-500/95 text-black border-amber-900/30",
-  info: "bg-sky-500/95 text-white border-sky-300/70",
+  info: "bg-sky-500/95 text-[#1a1a1a] border-sky-300/70",
 };
 
 export function ToastProvider({ children }: { children: ReactNode }): JSX.Element {

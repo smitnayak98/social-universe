@@ -80,14 +80,14 @@ function AddAccountModal({ clients, onClose, onAdded }: AddAccountFormProps) {
         className="relative w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
         style={{ background: "var(--card, #1a1a2e)", border: "1px solid rgba(255,255,255,0.08)" }}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#e0e0e0]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: pf.bg, color: pf.color }}>
               <PfIcon size={16} />
             </div>
-            <h2 className="text-base font-semibold text-white">Connect Account</h2>
+            <h2 className="text-base font-semibold text-[#1a1a1a]">Connect Account</h2>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all">
+          <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-[#1a1a1a]/40 hover:text-[#1a1a1a] hover:bg-[#eeeeee] transition-all">
             <X size={16} />
           </button>
         </div>
@@ -95,7 +95,7 @@ function AddAccountModal({ clients, onClose, onAdded }: AddAccountFormProps) {
         <div className="p-6 space-y-4">
           {/* Platform selector */}
           <div>
-            <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2 block">Platform</label>
+            <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider mb-2 block">Platform</label>
             <div className="grid grid-cols-5 gap-2">
               {PLATFORMS.map((p) => {
                 const Icon = p.icon;
@@ -105,13 +105,13 @@ function AddAccountModal({ clients, onClose, onAdded }: AddAccountFormProps) {
                     onClick={() => setPlatform(p.id)}
                     className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-all ${
                       platform === p.id
-                        ? "border-white/20 bg-white/10"
-                        : "border-white/5 bg-white/[0.02] hover:bg-white/5"
+                        ? "border-[#ccc] bg-[#eeeeee]"
+                        : "border-[#eee] bg-[#fafafa] hover:bg-[#f5f5f5]"
                     }`}
                     title={p.label}
                   >
                     <Icon size={18} style={{ color: platform === p.id ? p.color : "rgba(255,255,255,0.3)" }} />
-                    <span className="text-[9px] text-white/30 font-medium leading-none">{p.id === "twitter" ? "X" : p.label.split(" ")[0]}</span>
+                    <span className="text-[9px] text-[#1a1a1a]/30 font-medium leading-none">{p.id === "twitter" ? "X" : p.label.split(" ")[0]}</span>
                   </button>
                 );
               })}
@@ -120,36 +120,36 @@ function AddAccountModal({ clients, onClose, onAdded }: AddAccountFormProps) {
 
           {/* Account name */}
           <div>
-            <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Display Name *</label>
+            <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider mb-1.5 block">Display Name *</label>
             <input
               value={accountName}
               onChange={(e) => setAccountName(e.target.value)}
               placeholder={`e.g. Acme Corp ${pf.label}`}
-              className="w-full px-3 py-2 rounded-lg text-sm text-white bg-white/5 border border-white/10 focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 placeholder:text-white/20 transition-all"
+              className="w-full px-3 py-2 rounded-lg text-sm text-[#1a1a1a] bg-[#f5f5f5] border border-[#e0e0e0] focus:border-[#f5c800]/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 placeholder:text-[#1a1a1a]/20 transition-all"
             />
           </div>
 
           {/* Handle */}
           <div>
-            <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Handle / Username</label>
+            <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider mb-1.5 block">Handle / Username</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-sm">@</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#1a1a1a]/30 text-sm">@</span>
               <input
                 value={accountHandle}
                 onChange={(e) => setAccountHandle(e.target.value)}
                 placeholder="username"
-                className="w-full pl-7 pr-3 py-2 rounded-lg text-sm text-white bg-white/5 border border-white/10 focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 placeholder:text-white/20 transition-all"
+                className="w-full pl-7 pr-3 py-2 rounded-lg text-sm text-[#1a1a1a] bg-[#f5f5f5] border border-[#e0e0e0] focus:border-[#f5c800]/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 placeholder:text-[#1a1a1a]/20 transition-all"
               />
             </div>
           </div>
 
           {/* Client */}
           <div>
-            <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Client (optional)</label>
+            <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider mb-1.5 block">Client (optional)</label>
             <select
               value={clientId}
               onChange={(e) => setClientId(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg text-sm text-white bg-white/5 border border-white/10 focus:border-indigo-500/60 focus:outline-none transition-all"
+              className="w-full px-3 py-2 rounded-lg text-sm text-[#1a1a1a] bg-[#f5f5f5] border border-[#e0e0e0] focus:border-[#f5c800]/60 focus:outline-none transition-all"
             >
               <option value="">No client</option>
               {clients.map((c) => (
@@ -163,14 +163,14 @@ function AddAccountModal({ clients, onClose, onAdded }: AddAccountFormProps) {
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#e0e0e0]">
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium text-[#1a1a1a]/60 hover:text-[#1a1a1a] hover:bg-[#f5f5f5] transition-all">
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className="px-5 py-2 rounded-lg text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white transition-all flex items-center gap-2"
+            className="px-5 py-2 rounded-lg text-sm font-semibold bg-[#f5c800] hover:bg-[#f5c800] disabled:opacity-40 text-[#1a1a1a] transition-all flex items-center gap-2"
           >
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Link2 size={14} />}
             {saving ? "Connecting…" : "Connect Account"}
@@ -239,14 +239,14 @@ export default function SocialAccountsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Social Accounts</h1>
-            <p className="text-sm text-white/40 mt-1">
+            <h1 className="text-2xl font-bold text-[#1a1a1a] tracking-tight">Social Accounts</h1>
+            <p className="text-sm text-[#1a1a1a]/40 mt-1">
               {accounts.length} account{accounts.length !== 1 ? "s" : ""} connected
             </p>
           </div>
           <button
             onClick={() => setShowAdd(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-[#f5c800] hover:bg-[#f5c800] text-[#1a1a1a] transition-all"
           >
             <Plus size={15} />
             Connect Account
@@ -262,29 +262,29 @@ export default function SocialAccountsPage() {
               <div
                 key={pf.id}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-                  count > 0 ? "border-white/20 bg-white/5" : "border-white/5 bg-white/[0.02] opacity-40"
+                  count > 0 ? "border-[#ccc] bg-[#f5f5f5]" : "border-[#eee] bg-[#fafafa] opacity-40"
                 }`}
               >
                 <Icon size={13} style={{ color: pf.color }} />
-                <span className="text-white/70">{pf.label}</span>
-                <span className="text-white/30 font-mono">{count}</span>
+                <span className="text-[#1a1a1a]/70">{pf.label}</span>
+                <span className="text-[#1a1a1a]/30 font-mono">{count}</span>
               </div>
             );
           })}
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-20 text-white/30 text-sm">
+          <div className="flex items-center justify-center py-20 text-[#1a1a1a]/30 text-sm">
             Loading accounts…
           </div>
         ) : accounts.length === 0 ? (
-          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-12 flex flex-col items-center text-center">
-            <Link2 size={36} className="text-white/10 mb-3" />
-            <p className="text-white/40 text-sm font-medium">No accounts connected yet</p>
-            <p className="text-white/20 text-xs mt-1">Connect your first social account to start managing posts.</p>
+          <div className="rounded-xl border border-[#e0e0e0] bg-[#fafafa] p-12 flex flex-col items-center text-center">
+            <Link2 size={36} className="text-[#1a1a1a]/10 mb-3" />
+            <p className="text-[#1a1a1a]/40 text-sm font-medium">No accounts connected yet</p>
+            <p className="text-[#1a1a1a]/20 text-xs mt-1">Connect your first social account to start managing posts.</p>
             <button
               onClick={() => setShowAdd(true)}
-              className="mt-4 px-4 py-2 rounded-lg text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all flex items-center gap-2"
+              className="mt-4 px-4 py-2 rounded-lg text-sm font-semibold bg-[#f5c800] hover:bg-[#f5c800] text-[#1a1a1a] transition-all flex items-center gap-2"
             >
               <Plus size={14} />
               Connect Account
@@ -298,8 +298,8 @@ export default function SocialAccountsPage() {
                 <div key={pf.id}>
                   <div className="flex items-center gap-2 mb-3">
                     <Icon size={15} style={{ color: pf.color }} />
-                    <h3 className="text-sm font-semibold text-white/70">{pf.label}</h3>
-                    <span className="text-xs text-white/20 font-mono">{grouped[pf.id].length}</span>
+                    <h3 className="text-sm font-semibold text-[#1a1a1a]/70">{pf.label}</h3>
+                    <span className="text-xs text-[#1a1a1a]/20 font-mono">{grouped[pf.id].length}</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {grouped[pf.id].map((acc) => (
@@ -307,8 +307,8 @@ export default function SocialAccountsPage() {
                         key={acc.id}
                         className={`rounded-xl p-4 border transition-all flex items-center gap-3 ${
                           acc.is_active
-                            ? "bg-white/[0.03] border-white/10"
-                            : "bg-white/[0.01] border-white/5 opacity-60"
+                            ? "bg-white border-[#e0e0e0]"
+                            : "bg-white/[0.01] border-[#eee] opacity-60"
                         }`}
                       >
                         {/* Platform icon */}
@@ -321,13 +321,13 @@ export default function SocialAccountsPage() {
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white/90 truncate">{acc.account_name}</p>
+                          <p className="text-sm font-medium text-[#1a1a1a]/90 truncate">{acc.account_name}</p>
                           <div className="flex items-center gap-2 mt-0.5">
                             {acc.account_handle && (
-                              <span className="text-xs text-white/40">@{acc.account_handle}</span>
+                              <span className="text-xs text-[#1a1a1a]/40">@{acc.account_handle}</span>
                             )}
                             {(acc.clients as any)?.name && (
-                              <span className="text-xs text-white/25">· {(acc.clients as any).name}</span>
+                              <span className="text-xs text-[#1a1a1a]/25">· {(acc.clients as any).name}</span>
                             )}
                           </div>
                         </div>
@@ -338,22 +338,22 @@ export default function SocialAccountsPage() {
                           <button
                             onClick={() => handleToggle(acc)}
                             disabled={togglingId === acc.id}
-                            className="w-7 h-7 rounded-md flex items-center justify-center transition-all hover:bg-white/10 disabled:opacity-30"
+                            className="w-7 h-7 rounded-md flex items-center justify-center transition-all hover:bg-[#eeeeee] disabled:opacity-30"
                             title={acc.is_active ? "Deactivate" : "Activate"}
                           >
                             {togglingId === acc.id ? (
-                              <Loader2 size={13} className="animate-spin text-white/30" />
+                              <Loader2 size={13} className="animate-spin text-[#1a1a1a]/30" />
                             ) : acc.is_active ? (
                               <CheckCircle2 size={15} className="text-emerald-400" />
                             ) : (
-                              <XCircle size={15} className="text-white/20" />
+                              <XCircle size={15} className="text-[#1a1a1a]/20" />
                             )}
                           </button>
                           {/* Delete */}
                           <button
                             onClick={() => handleDelete(acc.id)}
                             disabled={deletingId === acc.id}
-                            className="w-7 h-7 rounded-md flex items-center justify-center text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30"
+                            className="w-7 h-7 rounded-md flex items-center justify-center text-[#1a1a1a]/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30"
                           >
                             {deletingId === acc.id ? (
                               <Loader2 size={13} className="animate-spin" />

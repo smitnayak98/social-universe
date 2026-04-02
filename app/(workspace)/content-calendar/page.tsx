@@ -11,10 +11,10 @@ const supabase = createBrowserClient(
 
 const platformDotColors: Record<string, string> = {
   instagram: "bg-pink-500", twitter: "bg-sky-500", facebook: "bg-blue-500",
-  linkedin: "bg-indigo-500", youtube: "bg-red-500",
+  linkedin: "bg-[#f5c800]", youtube: "bg-red-500",
 };
 const statusBadge: Record<string, string> = {
-  draft: "border-zinc-600/40 bg-zinc-700/30 text-zinc-400",
+  draft: "border-zinc-600/40 bg-zinc-700/30 text-[#666]",
   scheduled: "border-amber-500/30 bg-amber-500/10 text-amber-400",
   published: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
   failed: "border-red-500/30 bg-red-500/10 text-red-400",
@@ -72,10 +72,10 @@ export default function CalendarPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-white tracking-tight">Content Calendar</h1>
-          <p className="text-sm text-zinc-400 mt-1">Scheduled posts for {MONTHS[month]} {year}</p>
+          <h1 className="text-2xl font-semibold text-[#1a1a1a] tracking-tight">Content Calendar</h1>
+          <p className="text-sm text-[#666] mt-1">Scheduled posts for {MONTHS[month]} {year}</p>
         </div>
-        <a href="/create-post" className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors">
+        <a href="/create-post" className="inline-flex items-center gap-2 bg-[#e0b800] hover:bg-[#f5c800] text-[#1a1a1a] text-sm font-medium px-4 py-2 rounded-xl transition-colors">
           <Plus className="w-4 h-4" />New Post
         </a>
       </div>
@@ -83,11 +83,11 @@ export default function CalendarPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 rounded-2xl border border-zinc-800 bg-zinc-900/60 overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
-            <button onClick={() => { setCurrentDate(new Date(year, month - 1, 1)); setSelectedDay(null); }} className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+            <button onClick={() => { setCurrentDate(new Date(year, month - 1, 1)); setSelectedDay(null); }} className="p-2 rounded-lg text-[#666] hover:text-[#1a1a1a] hover:bg-zinc-800 transition-colors">
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <h2 className="text-sm font-semibold text-white">{MONTHS[month]} {year}</h2>
-            <button onClick={() => { setCurrentDate(new Date(year, month + 1, 1)); setSelectedDay(null); }} className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+            <h2 className="text-sm font-semibold text-[#1a1a1a]">{MONTHS[month]} {year}</h2>
+            <button onClick={() => { setCurrentDate(new Date(year, month + 1, 1)); setSelectedDay(null); }} className="p-2 rounded-lg text-[#666] hover:text-[#1a1a1a] hover:bg-zinc-800 transition-colors">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -95,7 +95,7 @@ export default function CalendarPage() {
             {DAYS.map((d) => <div key={d} className="py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider">{d}</div>)}
           </div>
           {loading ? (
-            <div className="h-64 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-violet-400" /></div>
+            <div className="h-64 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-[#b8930a]" /></div>
           ) : (
             <div className="grid grid-cols-7">
               {calendarCells.map((day, idx) => {
@@ -104,10 +104,10 @@ export default function CalendarPage() {
                 const isTodayCell = day ? isToday(day) : false;
                 return (
                   <div key={idx} onClick={() => day && setSelectedDay(isSelected ? null : day)}
-                    className={`min-h-[80px] p-2 border-b border-r border-zinc-800 ${idx % 7 === 6 ? "border-r-0" : ""} ${day ? "cursor-pointer hover:bg-zinc-800/40 transition-colors" : "bg-zinc-900/20"} ${isSelected ? "bg-violet-500/10" : ""}`}>
+                    className={`min-h-[80px] p-2 border-b border-r border-zinc-800 ${idx % 7 === 6 ? "border-r-0" : ""} ${day ? "cursor-pointer hover:bg-zinc-800/40 transition-colors" : "bg-zinc-900/20"} ${isSelected ? "bg-[#f5c800]/10" : ""}`}>
                     {day && (
                       <>
-                        <div className={`w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium mb-1.5 ${isTodayCell ? "bg-violet-600 text-white" : isSelected ? "bg-violet-500/20 text-violet-300" : "text-zinc-400"}`}>{day}</div>
+                        <div className={`w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium mb-1.5 ${isTodayCell ? "bg-[#e0b800] text-[#1a1a1a]" : isSelected ? "bg-[#f5c800]/20 text-[#b8930a]" : "text-[#666]"}`}>{day}</div>
                         <div className="flex flex-wrap gap-1">
                           {dayPosts.slice(0, 3).map((p) => <div key={p.id} className={`w-2 h-2 rounded-full ${platformDotColors[p.platform] ?? "bg-zinc-500"}`} />)}
                           {dayPosts.length > 3 && <span className="text-[10px] text-zinc-500">+{dayPosts.length - 3}</span>}
@@ -123,7 +123,7 @@ export default function CalendarPage() {
 
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 overflow-hidden">
           <div className="px-5 py-4 border-b border-zinc-800">
-            <h3 className="text-sm font-semibold text-white">{selectedDay ? `${MONTHS[month]} ${selectedDay}, ${year}` : "Select a day"}</h3>
+            <h3 className="text-sm font-semibold text-[#1a1a1a]">{selectedDay ? `${MONTHS[month]} ${selectedDay}, ${year}` : "Select a day"}</h3>
             <p className="text-xs text-zinc-500 mt-0.5">{selectedDay ? `${selectedDayPosts.length} posts scheduled` : "Click a date to see posts"}</p>
           </div>
           <div className="p-4">
@@ -135,7 +135,7 @@ export default function CalendarPage() {
             ) : selectedDayPosts.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-xs text-zinc-500 mb-3">No posts scheduled for this day</p>
-                <a href="/create-post" className="text-xs text-violet-400 hover:text-violet-300">+ Schedule a post</a>
+                <a href="/create-post" className="text-xs text-[#b8930a] hover:text-[#b8930a]">+ Schedule a post</a>
               </div>
             ) : (
               <div className="space-y-3">
@@ -148,14 +148,14 @@ export default function CalendarPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full ${dot}`} />
-                          <span className="text-xs font-medium text-zinc-300 capitalize">{post.platform}</span>
+                          <span className="text-xs font-medium text-[#444] capitalize">{post.platform}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-zinc-600">{time}</span>
                           <span className={`text-[10px] px-1.5 py-0.5 rounded-full border capitalize ${badge}`}>{post.status}</span>
                         </div>
                       </div>
-                      <p className="text-xs text-zinc-400 line-clamp-3">{post.caption}</p>
+                      <p className="text-xs text-[#666] line-clamp-3">{post.caption}</p>
                       {post.clients?.name && <p className="text-[10px] text-zinc-600">{post.clients.name}</p>}
                     </div>
                   );
@@ -167,7 +167,7 @@ export default function CalendarPage() {
       </div>
 
       <div className="flex flex-wrap gap-4 text-xs text-zinc-500">
-        <span className="font-medium text-zinc-400">Platforms:</span>
+        <span className="font-medium text-[#666]">Platforms:</span>
         {Object.entries(platformDotColors).map(([p, color]) => (
           <span key={p} className="flex items-center gap-1.5"><span className={`w-2 h-2 rounded-full ${color}`} />{p.charAt(0).toUpperCase() + p.slice(1)}</span>
         ))}
