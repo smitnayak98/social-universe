@@ -21,13 +21,27 @@ export async function POST(req: NextRequest) {
     if (postError || !post) return NextResponse.json({ error: 'Post not found' }, { status: 404 })
 
     // Get instagram social account with access token
-    const { data: account } = await supabase
+    // First try client-specific account, fallback to any connected account
+    let { data: account } = await supabase
       .from('social_accounts')
       .select('*')
       .eq('platform', 'instagram')
       .eq('is_connected', true)
       .not('access_token', 'is', null)
+      .eq('client_id', post.client_id)
       .single()
+
+    // Fallback to any connected Instagram account
+    if (!account) {
+      const { data: fallback } = await supabase
+        .from('social_accounts')
+        .select('*')
+        .eq('platform', 'instagram')
+        .eq('is_connected', true)
+        .not('access_token', 'is', null)
+        .single()
+      account = fallback
+    }
 
     if (!account?.access_token) {
       return NextResponse.json({ error: 'No connected Instagram account found' }, { status: 400 })
