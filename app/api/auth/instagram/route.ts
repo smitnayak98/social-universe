@@ -10,12 +10,12 @@ export async function GET(req: NextRequest) {
   const params = new URLSearchParams({
     client_id: appId,
     redirect_uri: redirectUri,
-    scope: 'instagram_business_basic,instagram_content_publish,instagram_manage_comments',
+    scope: 'instagram_business_basic,instagram_content_publish,instagram_manage_comments,pages_show_list',
     response_type: 'code',
     state: clientId,
   })
 
   return NextResponse.redirect(
-    `https://www.facebook.com/v18.0/dialog/oauth?${params.toString()}`
+    `https://www.facebook.com/dialog/oauth?${params.toString()}`
   )
 }
