@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
 
   const appId = process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID!
   const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/instagram`
-  
+
   const params = new URLSearchParams({
     client_id: appId,
     redirect_uri: redirectUri,
@@ -16,6 +16,6 @@ export async function GET(req: NextRequest) {
   })
 
   return NextResponse.redirect(
-    `https://www.instagram.com/oauth/authorize?${params.toString()}`
+    `https://www.facebook.com/v18.0/dialog/oauth?${params.toString()}`
   )
 }
