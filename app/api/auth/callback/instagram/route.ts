@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const appId = process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID!
+    const appId = '918340494293733'
     const appSecret = process.env.INSTAGRAM_APP_SECRET!
     const redirectUri = `${appUrl}/api/auth/callback/instagram`
 
@@ -33,7 +33,10 @@ export async function GET(req: NextRequest) {
       }),
     })
     const tokenData = await tokenRes.json()
-    if (tokenData.error_type) {
+    console.log('Token response:', JSON.stringify(tokenData))
+
+    if (tokenData.error_type || tokenData.error) {
+      console.error('Token error:', tokenData)
       return NextResponse.redirect(`${appUrl}/social-accounts?error=token_exchange_failed`)
     }
 
@@ -45,6 +48,8 @@ export async function GET(req: NextRequest) {
       `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${appSecret}&access_token=${shortToken}`
     )
     const longData = await longRes.json()
+    console.log('Long token response:', JSON.stringify(longData))
+
     const longToken = longData.access_token || shortToken
     const expiresIn = longData.expires_in || 5184000
 
@@ -53,6 +58,7 @@ export async function GET(req: NextRequest) {
       `https://graph.instagram.com/v18.0/${igUserId}?fields=id,username&access_token=${longToken}`
     )
     const profile = await profileRes.json()
+    console.log('Profile:', JSON.stringify(profile))
 
     // Save to Supabase
     const supabase = createClient(
