@@ -1,93 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 
 export async function GET(req: NextRequest) {
-  const code = req.nextUrl.searchParams.get('code')
-  const clientId = req.nextUrl.searchParams.get('state')
-  const error = req.nextUrl.searchParams.get('error')
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL!
+  const clientId = req.nextUrl.searchParams.get('client_id')
+  if (!clientId) return NextResponse.json({ error: 'client_id required' }, { status: 400 })
 
-  if (error) {
-    return NextResponse.redirect(`${appUrl}/social-accounts?error=instagram_denied`)
-  }
+  const appId = process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID!
+  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/instagram`
 
-  if (!code || !clientId) {
-    return NextResponse.redirect(`${appUrl}/social-accounts?error=missing_params`)
-  }
+  const params = new URLSearchParams({
+    client_id: appId,
+    redirect_uri: redirectUri,
+    scope: 'public_profile,instagram_basic,instagram_content_publish',
+    response_type: 'code',
+    state: clientId,
+  })
 
-  try {
-    const appId = '918340494293733'
-    const appSecret = process.env.INSTAGRAM_APP_SECRET!
-    const redirectUri = `${appUrl}/api/auth/callback/instagram`
-
-    // Exchange code for short-lived token
-    const tokenRes = await fetch('https://api.instagram.com/oauth/access_token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: appId,
-        client_secret: appSecret,
-        grant_type: 'authorization_code',
-        redirect_uri: redirectUri,
-        code,
-      }),
-    })
-    const tokenData = await tokenRes.json()
-    console.log('Token response:', JSON.stringify(tokenData))
-
-    if (tokenData.error_type || tokenData.error) {
-      console.error('Token error:', tokenData)
-      return NextResponse.redirect(`${appUrl}/social-accounts?error=token_exchange_failed`)
-    }
-
-    const shortToken = tokenData.access_token
-    const igUserId = tokenData.user_id
-
-    // Exchange for long-lived token
-    const longRes = await fetch(
-      `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${appSecret}&access_token=${shortToken}`
-    )
-    const longData = await longRes.json()
-    console.log('Long token response:', JSON.stringify(longData))
-
-    const longToken = longData.access_token || shortToken
-    const expiresIn = longData.expires_in || 5184000
-
-    // Get Instagram username
-    const profileRes = await fetch(
-      `https://graph.instagram.com/v18.0/${igUserId}?fields=id,username&access_token=${longToken}`
-    )
-    const profile = await profileRes.json()
-    console.log('Profile:', JSON.stringify(profile))
-
-    // Save to Supabase
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-
-    const { error: dbError } = await supabase
-      .from('social_accounts')
-      .upsert({
-        client_id: clientId,
-        platform: 'instagram',
-        account_id: String(igUserId),
-        account_name: profile.username || String(igUserId),
-        access_token: longToken,
-        token_expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
-        is_connected: true,
-      }, {
-        onConflict: 'client_id,platform'
-      })
-
-    if (dbError) {
-      console.error('DB error:', dbError)
-      return NextResponse.redirect(`${appUrl}/social-accounts?error=db_error`)
-    }
-
-    return NextResponse.redirect(`${appUrl}/social-accounts?success=instagram_connected`)
-  } catch (err: any) {
-    console.error('OAuth error:', err)
-    return NextResponse.redirect(`${appUrl}/social-accounts?error=oauth_failed`)
-  }
+  return NextResponse.redirect(
+    `https://www.facebook.com/v18.0/dialog/oauth?${params.toString()}`
+  )
 }
