@@ -15,7 +15,17 @@ export async function GET(req: NextRequest) {
     state: clientId,
   })
 
-  return NextResponse.redirect(
+  const response = NextResponse.redirect(
     `https://www.facebook.com/v18.0/dialog/oauth?${params.toString()}`
   )
+
+  // Store clientId in cookie as backup
+  response.cookies.set('oauth_client_id', clientId, {
+    httpOnly: true,
+    secure: true,
+    maxAge: 600,
+    path: '/',
+  })
+
+  return response
 }
