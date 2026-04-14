@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const params = new URLSearchParams({
     client_id: appId,
     redirect_uri: redirectUri,
-    scope: 'public_profile,instagram_basic,instagram_content_publish',
+    scope: 'public_profile,pages_show_list,pages_read_engagement',
     response_type: 'code',
     state: clientId,
   })
