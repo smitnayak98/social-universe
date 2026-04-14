@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const params = new URLSearchParams({
     client_id: appId,
     redirect_uri: redirectUri,
-    scope: 'public_profile',
+    scope: 'public_profile,pages_show_list,pages_read_engagement,instagram_basic,instagram_content_publish,instagram_manage_comments',
     response_type: 'code',
     state: clientId,
   })
@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
     `https://www.facebook.com/v18.0/dialog/oauth?${params.toString()}`
   )
 
-  // Store clientId in cookie as backup
   response.cookies.set('oauth_client_id', clientId, {
     httpOnly: true,
     secure: true,
