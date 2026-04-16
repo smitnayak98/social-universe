@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const params = new URLSearchParams({
     client_id: appId,
     redirect_uri: redirectUri,
-    scope: 'public_profile,pages_show_list',
+    scope: 'public_profile',
     response_type: 'code',
     state: clientId,
   })
