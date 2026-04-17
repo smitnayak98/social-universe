@@ -3,7 +3,6 @@ import { createClient } from '@supabase/supabase-js'
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code')
-  const clientId = req.nextUrl.searchParams.get('state')
   const error = req.nextUrl.searchParams.get('error')
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!
 
@@ -11,8 +10,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(`${appUrl}/social-accounts?error=facebook_denied`)
   }
 
-  if (!code || !clientId) {
-    return NextResponse.redirect(`${appUrl}/social-accounts?error=missing_params`)
+  if (!code) {
+    return NextResponse.redirect(`${appUrl}/social-accounts?error=missing_code`)
+  }
+
+  const clientId = req.nextUrl.searchParams.get('state')
+    || req.cookies.get('oauth_client_id')?.value
+
+  if (!clientId) {
+    return NextResponse.redirect(`${appUrl}/social-accounts?error=missing_client_id`)
   }
 
   try {
@@ -20,18 +26,18 @@ export async function GET(req: NextRequest) {
     const appSecret = process.env.INSTAGRAM_APP_SECRET!
     const redirectUri = `${appUrl}/api/auth/callback/facebook`
 
-    // Exchange code for user token
     const tokenRes = await fetch(
       `https://graph.facebook.com/v18.0/oauth/access_token?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&client_secret=${appSecret}&code=${code}`
     )
     const tokenData = await tokenRes.json()
+
     if (tokenData.error) {
+      console.error('FB token error:', tokenData)
       return NextResponse.redirect(`${appUrl}/social-accounts?error=token_failed`)
     }
 
     const userToken = tokenData.access_token
 
-    // Get Facebook Pages
     const pagesRes = await fetch(
       `https://graph.facebook.com/v18.0/me/accounts?access_token=${userToken}`
     )
@@ -42,13 +48,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(`${appUrl}/social-accounts?error=no_pages`)
     }
 
-    // Use the first page
     const page = pages[0]
     const pageToken = page.access_token
     const pageId = page.id
     const pageName = page.name
 
-    // Save to Supabase
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -64,15 +68,17 @@ export async function GET(req: NextRequest) {
         access_token: pageToken,
         token_expires_at: null,
         is_connected: true,
-      }, {
-        onConflict: 'client_id,platform'
-      })
+      }, { onConflict: 'client_id,platform' })
 
     if (dbError) {
+      console.error('DB error:', dbError)
       return NextResponse.redirect(`${appUrl}/social-accounts?error=db_error`)
     }
 
-    return NextResponse.redirect(`${appUrl}/social-accounts?success=facebook_connected`)
+    const redirectRes = NextResponse.redirect(`${appUrl}/social-accounts?success=facebook_connected`)
+    redirectRes.cookies.delete('oauth_client_id')
+    return redirectRes
+
   } catch (err: any) {
     console.error('Facebook OAuth error:', err)
     return NextResponse.redirect(`${appUrl}/social-accounts?error=oauth_failed`)

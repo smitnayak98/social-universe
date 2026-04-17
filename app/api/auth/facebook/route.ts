@@ -10,12 +10,21 @@ export async function GET(req: NextRequest) {
   const params = new URLSearchParams({
     client_id: appId,
     redirect_uri: redirectUri,
-    scope: 'pages_show_list,pages_read_engagement,pages_manage_posts,instagram_basic,instagram_content_publish',
+    scope: 'public_profile,pages_show_list,pages_read_engagement,pages_manage_posts',
     response_type: 'code',
     state: clientId,
   })
 
-  return NextResponse.redirect(
+  const response = NextResponse.redirect(
     `https://www.facebook.com/v18.0/dialog/oauth?${params.toString()}`
   )
+
+  response.cookies.set('oauth_client_id', clientId, {
+    httpOnly: true,
+    secure: true,
+    maxAge: 600,
+    path: '/',
+  })
+
+  return response
 }
