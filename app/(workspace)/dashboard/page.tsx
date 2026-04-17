@@ -21,10 +21,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function load() {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       const [
         { count: clients }, { count: total }, { count: scheduled },
         { count: published }, { count: drafts }, { count: accounts },
-        { data: posts }
+        { data: posts }, { data: weekPosts }
       ] = await Promise.all([
         supabase.from("clients").select("*", { count:"exact", head:true }),
         supabase.from("posts").select("*", { count:"exact", head:true }),
@@ -33,6 +34,7 @@ export default function DashboardPage() {
         supabase.from("posts").select("*", { count:"exact", head:true }).eq("status","draft"),
         supabase.from("social_accounts").select("*", { count:"exact", head:true }),
         supabase.from("posts").select("*, clients(name)").order("created_at", { ascending:false }).limit(5),
+        supabase.from("posts").select("created_at").gte("created_at", sevenDaysAgo),
       ]);
       setStats({ clients:clients??0, total:total??0, scheduled:scheduled??0, published:published??0, drafts:drafts??0, accounts:accounts??0 });
       setRecentPosts(posts ?? []);
@@ -43,7 +45,7 @@ export default function DashboardPage() {
         const label = d.toLocaleDateString("en-IN", { weekday:"short" });
         const dayStart = new Date(d); dayStart.setHours(0,0,0,0);
         const dayEnd = new Date(d); dayEnd.setHours(23,59,59,999);
-        const count = (posts ?? []).filter(p => {
+        const count = (weekPosts ?? []).filter(p => {
           const pd = new Date(p.created_at);
           return pd >= dayStart && pd <= dayEnd;
         }).length;
@@ -95,11 +97,11 @@ export default function DashboardPage() {
           {chartData.some(d => d.posts > 0) ? (
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={chartData} barSize={28}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false}/>
-                <XAxis dataKey="day" tick={{ fill:"rgba(255,255,255,0.3)", fontSize:11 }} axisLine={false} tickLine={false}/>
-                <YAxis allowDecimals={false} tick={{ fill:"rgba(255,255,255,0.3)", fontSize:11 }} axisLine={false} tickLine={false} width={20}/>
-                <Tooltip contentStyle={{ background:"#1a1a2e", border:"1px solid rgba(255,255,255,0.1)", borderRadius:8, color:"white", fontSize:12 }} cursor={{ fill:"rgba(255,255,255,0.03)" }}/>
-                <Bar dataKey="posts" fill="#6366f1" radius={[4,4,0,0]}/>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,26,26,0.06)" vertical={false}/>
+                <XAxis dataKey="day" tick={{ fill:"rgba(26,26,26,0.4)", fontSize:11 }} axisLine={false} tickLine={false}/>
+                <YAxis allowDecimals={false} tick={{ fill:"rgba(26,26,26,0.4)", fontSize:11 }} axisLine={false} tickLine={false} width={20}/>
+                <Tooltip contentStyle={{ background:"#fff", border:"1px solid #e0e0e0", borderRadius:8, color:"#1a1a1a", fontSize:12 }} cursor={{ fill:"rgba(26,26,26,0.03)" }}/>
+                <Bar dataKey="posts" fill="#f5c800" radius={[4,4,0,0]}/>
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -141,7 +143,7 @@ export default function DashboardPage() {
           <div className="space-y-2">
             {recentPosts.map(post => (
               <div key={post.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white transition-all">
-                <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: PLATFORM_COLORS[post.platform] ?? "#6366f1" }}/>
+                <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: PLATFORM_COLORS[post.platform] ?? "#f5c800" }}/>
                 <p className="text-sm text-[#1a1a1a]/70 truncate flex-1">{post.caption}</p>
                 <span className="text-xs text-[#1a1a1a]/30 capitalize hidden sm:block">{post.clients?.name ?? "—"}</span>
                 <span className={`text-xs px-2 py-0.5 rounded-full capitalize flex-shrink-0 ${STATUS_COLORS[post.status] ?? STATUS_COLORS.draft}`}>{post.status}</span>
