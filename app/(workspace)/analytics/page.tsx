@@ -1,299 +1,195 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createBrowserClient } from "@supabase/ssr";
-import { Activity, Eye, TrendingUp, Users } from "lucide-react";
+import { FileText, CheckCircle2, Clock, Edit3, Instagram, Facebook, Users, Share2 } from "lucide-react";
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
+  BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, CartesianGrid
 } from "recharts";
-
-type SnapshotRow = {
-  snapshot_date: string;
-  social_account_id: string;
-  followers: number | null;
-  following: number | null;
-  posts_count: number | null;
-  reach: number | null;
-  impressions: number | null;
-  profile_views: number | null;
-  website_clicks: number | null;
-  social_accounts?: {
-    platform?: string | null;
-    account_name?: string | null;
-    account_name?: string | null;
-  } | null;
-};
-
-type DailyPoint = {
-  date: string;
-  followers: number;
-  reach: number;
-  impressions: number;
-  profile_views: number;
-};
 
 const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const TOOLTIP_STYLE = {
-  background: "#100c31",
-  border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 10,
-  color: "white",
-  fontSize: 12,
+const COLORS = ["#f5c800", "#1877f2", "#e1306c", "#0a66c2", "#ff0000", "#6366f1"];
+const STATUS_COLORS: Record<string, string> = {
+  published: "#22c55e", scheduled: "#3b82f6", draft: "#d1d5db", failed: "#ef4444",
 };
 
-function formatKpi(value: number): string {
-  if (Math.abs(value) >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
-  if (Math.abs(value) >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
-  return value.toLocaleString();
-}
-
-function formatDelta(current: number, previous: number): string {
-  const delta = current - previous;
-  const sign = delta >= 0 ? "+" : "";
-  return `${sign}${formatKpi(delta)} (7d)`;
-}
-
-function sumMetric(points: DailyPoint[], key: keyof Omit<DailyPoint, "date">): number {
-  return points.reduce((acc, row) => acc + row[key], 0);
-}
-
 export default function AnalyticsPage() {
-  const [rows, setRows] = useState<SnapshotRow[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const load = async () => {
-      const { data, error } = await supabase
-        .from("analytics_snapshots")
-        .select(
-          "snapshot_date, social_account_id, followers, following, posts_count, reach, impressions, profile_views, website_clicks, social_accounts(platform, account_name, account_name)",
-        )
-        .order("snapshot_date", { ascending: true });
-
-      if (error) {
-        setRows([]);
-      } else {
-        setRows((data as SnapshotRow[]) ?? []);
-      }
+    async function load() {
+      const [{ data: p }, { data: c }, { data: a }] = await Promise.all([
+        supabase.from("posts").select("*, clients(name)"),
+        supabase.from("clients").select("id, name"),
+        supabase.from("social_accounts").select("*").eq("is_connected", true),
+      ]);
+      setPosts(p ?? []); setClients(c ?? []); setAccounts(a ?? []);
       setLoading(false);
-    };
-
+    }
     load();
   }, []);
 
-  const dailySeries = useMemo<DailyPoint[]>(() => {
-    const grouped = new Map<string, DailyPoint>();
+  const byStatus = [
+    { name: "Published", value: posts.filter(p => p.status === "published").length, color: STATUS_COLORS.published },
+    { name: "Scheduled", value: posts.filter(p => p.status === "scheduled").length, color: STATUS_COLORS.scheduled },
+    { name: "Draft", value: posts.filter(p => p.status === "draft").length, color: STATUS_COLORS.draft },
+    { name: "Failed", value: posts.filter(p => p.status === "failed").length, color: STATUS_COLORS.failed },
+  ].filter(d => d.value > 0);
 
-    for (const row of rows) {
-      const key = row.snapshot_date;
-      const current = grouped.get(key) ?? {
-        date: key,
-        followers: 0,
-        reach: 0,
-        impressions: 0,
-        profile_views: 0,
-      };
+  const platformCounts: Record<string, number> = {};
+  posts.forEach(p => { const pl: string[] = p.platforms ?? []; pl.forEach(x => { platformCounts[x] = (platformCounts[x] || 0) + 1; }); });
+  const byPlatform = Object.entries(platformCounts).map(([name, value], i) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value, color: COLORS[i % COLORS.length] }));
 
-      current.followers += row.followers ?? 0;
-      current.reach += row.reach ?? 0;
-      current.impressions += row.impressions ?? 0;
-      current.profile_views += row.profile_views ?? 0;
-      grouped.set(key, current);
-    }
+  const clientCounts: Record<string, number> = {};
+  posts.forEach(p => { const name = p.clients?.name ?? "Unknown"; clientCounts[name] = (clientCounts[name] || 0) + 1; });
+  const byClient = Object.entries(clientCounts).map(([name, posts]) => ({ name, posts })).sort((a, b) => b.posts - a.posts);
 
-    return Array.from(grouped.values());
-  }, [rows]);
+  const monthCounts: Record<string, number> = {};
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    monthCounts[d.toLocaleDateString("en-IN", { month: "short", year: "2-digit" })] = 0;
+  }
+  posts.forEach(p => {
+    const key = new Date(p.created_at).toLocaleDateString("en-IN", { month: "short", year: "2-digit" });
+    if (key in monthCounts) monthCounts[key]++;
+  });
+  const byMonth = Object.entries(monthCounts).map(([month, posts]) => ({ month, posts }));
 
-  const last14Days = useMemo(() => dailySeries.slice(-14), [dailySeries]);
-  const latest = last14Days[last14Days.length - 1] ?? {
-    date: "",
-    followers: 0,
-    reach: 0,
-    impressions: 0,
-    profile_views: 0,
-  };
-
-  const currentWindow = last14Days.slice(-7);
-  const previousWindow = last14Days.slice(-14, -7);
-
-  const kpis = [
-    {
-      key: "followers",
-      label: "Followers",
-      value: latest.followers,
-      delta: formatDelta(
-        sumMetric(currentWindow, "followers"),
-        sumMetric(previousWindow, "followers"),
-      ),
-      icon: <Users size={15} />,
-      tone: "text-[#b8930a]",
-    },
-    {
-      key: "reach",
-      label: "Reach",
-      value: latest.reach,
-      delta: formatDelta(sumMetric(currentWindow, "reach"), sumMetric(previousWindow, "reach")),
-      icon: <Activity size={15} />,
-      tone: "text-[#b8930a]",
-    },
-    {
-      key: "impressions",
-      label: "Impressions",
-      value: latest.impressions,
-      delta: formatDelta(
-        sumMetric(currentWindow, "impressions"),
-        sumMetric(previousWindow, "impressions"),
-      ),
-      icon: <TrendingUp size={15} />,
-      tone: "text-cyan-300",
-    },
-    {
-      key: "profile_views",
-      label: "Profile Views",
-      value: latest.profile_views,
-      delta: formatDelta(
-        sumMetric(currentWindow, "profile_views"),
-        sumMetric(previousWindow, "profile_views"),
-      ),
-      icon: <Eye size={15} />,
-      tone: "text-emerald-300",
-    },
+  const STAT_CARDS = [
+    { label: "Total Posts", value: posts.length, icon: <FileText size={16} />, color: "text-blue-500", bg: "bg-blue-500/10" },
+    { label: "Published", value: posts.filter(p => p.status === "published").length, icon: <CheckCircle2 size={16} />, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+    { label: "Scheduled", value: posts.filter(p => p.status === "scheduled").length, icon: <Clock size={16} />, color: "text-amber-500", bg: "bg-amber-500/10" },
+    { label: "Drafts", value: posts.filter(p => p.status === "draft").length, icon: <Edit3 size={16} />, color: "text-gray-400", bg: "bg-gray-100" },
+    { label: "Total Clients", value: clients.length, icon: <Users size={16} />, color: "text-[#b8930a]", bg: "bg-[#f5c800]/10" },
+    { label: "Connected Accounts", value: accounts.length, icon: <Share2 size={16} />, color: "text-pink-500", bg: "bg-pink-500/10" },
   ];
 
-  if (loading) {
-    return (
-      <div className="flex min-h-[420px] items-center justify-center text-sm text-violet-100/60">
-        Loading analytics snapshots...
-      </div>
-    );
-  }
-
-  if (!rows.length) {
-    return (
-      <div className="mx-auto max-w-7xl space-y-5 p-6">
-        <h1 className="text-3xl font-semibold tracking-tight text-[#1a1a1a]">Analytics</h1>
-        <div className="rounded-2xl border border-[#e0e0e0] bg-white p-12 text-center">
-          <p className="text-sm text-violet-100/70">
-            No data in analytics snapshots yet. Connect social accounts and sync snapshots.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="flex min-h-[420px] items-center justify-center text-sm text-[#999]">Loading analytics...</div>;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-[#1a1a1a]">Analytics</h1>
-          <p className="mt-1 text-sm text-violet-100/70">
-            Snapshot trends from connected social accounts.
-          </p>
-        </div>
+    <div className="space-y-6 p-6 max-w-6xl mx-auto">
+      <header>
+        <h1 className="text-2xl font-bold text-[#1a1a1a] tracking-tight">Analytics</h1>
+        <p className="text-sm text-[#999] mt-1">Overview of your content and social accounts</p>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {kpis.map((card) => (
-          <article
-            key={card.key}
-            className="rounded-2xl border border-[#e0e0e0] bg-white p-5 shadow-lg shadow-black/15"
-          >
-            <div className={`mb-3 inline-flex rounded-lg bg-[#f5f5f5] p-2 ${card.tone}`}>
-              {card.icon}
-            </div>
-            <p className="text-xs uppercase tracking-wide text-[#666]">{card.label}</p>
-            <p className="mt-1 text-2xl font-semibold text-[#1a1a1a] tabular-nums">
-              {formatKpi(card.value)}
-            </p>
-            <p className="mt-2 text-xs text-violet-200/70">{card.delta}</p>
-          </article>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {STAT_CARDS.map(card => (
+          <div key={card.label} className="rounded-xl p-4 border border-[#e0e0e0] bg-white">
+            <div className={`w-8 h-8 rounded-lg ${card.bg} flex items-center justify-center mb-3 ${card.color}`}>{card.icon}</div>
+            <div className="text-2xl font-bold text-[#1a1a1a] tabular-nums">{card.value}</div>
+            <div className="text-xs text-[#999] mt-0.5">{card.label}</div>
+          </div>
         ))}
-      </section>
+      </div>
 
-      <section className="rounded-2xl border border-[#e0e0e0] bg-white p-5">
-        <h2 className="mb-4 text-sm font-semibold text-[#1a1a1a]/90">Followers Trend</h2>
-        <ResponsiveContainer width="100%" height={280}>
-          <AreaChart data={dailySeries}>
-            <defs>
-              <linearGradient id="followersFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#7F77DD" stopOpacity={0.45} />
-                <stop offset="95%" stopColor="#7F77DD" stopOpacity={0.02} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
-            <XAxis
-              dataKey="date"
-              tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
-              axisLine={false}
-              tickLine={false}
-              width={50}
-            />
-            <Tooltip contentStyle={TOOLTIP_STYLE} />
-            <Area
-              type="monotone"
-              dataKey="followers"
-              stroke="#A78BFA"
-              fill="url(#followersFill)"
-              strokeWidth={2.2}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </section>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 rounded-xl border border-[#e0e0e0] bg-white p-5">
+          <h2 className="text-sm font-semibold text-[#1a1a1a]/80 mb-4">Posts Per Month</h2>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={byMonth} barSize={32}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,26,26,0.06)" vertical={false} />
+              <XAxis dataKey="month" tick={{ fill: "rgba(26,26,26,0.4)", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} tick={{ fill: "rgba(26,26,26,0.4)", fontSize: 11 }} axisLine={false} tickLine={false} width={20} />
+              <Tooltip contentStyle={{ background: "#fff", border: "1px solid #e0e0e0", borderRadius: 8, fontSize: 12 }} cursor={{ fill: "rgba(26,26,26,0.03)" }} />
+              <Bar dataKey="posts" fill="#f5c800" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
 
-      <section className="rounded-2xl border border-[#e0e0e0] bg-white p-5">
-        <h2 className="mb-4 text-sm font-semibold text-[#1a1a1a]/90">Reach vs Impressions</h2>
-        <ResponsiveContainer width="100%" height={280}>
-          <LineChart data={dailySeries}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
-            <XAxis
-              dataKey="date"
-              tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
-              axisLine={false}
-              tickLine={false}
-              width={50}
-            />
-            <Tooltip contentStyle={TOOLTIP_STYLE} />
-            <Line
-              type="monotone"
-              dataKey="reach"
-              name="Reach"
-              stroke="#7F77DD"
-              strokeWidth={2.2}
-              dot={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="impressions"
-              name="Impressions"
-              stroke="#22D3EE"
-              strokeWidth={2.2}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </section>
+        <div className="rounded-xl border border-[#e0e0e0] bg-white p-5">
+          <h2 className="text-sm font-semibold text-[#1a1a1a]/80 mb-4">Posts by Status</h2>
+          {byStatus.length > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={160}>
+                <PieChart>
+                  <Pie data={byStatus} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" paddingAngle={3}>
+                    {byStatus.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                  </Pie>
+                  <Tooltip contentStyle={{ background: "#fff", border: "1px solid #e0e0e0", borderRadius: 8, fontSize: 12 }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="space-y-1.5 mt-2">
+                {byStatus.map((s, i) => (
+                  <div key={i} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ background: s.color }} /><span className="text-[#555]">{s.name}</span></div>
+                    <span className="font-semibold text-[#1a1a1a]">{s.value}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : <div className="flex items-center justify-center h-[160px] text-sm text-[#999]">No posts yet</div>}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="rounded-xl border border-[#e0e0e0] bg-white p-5">
+          <h2 className="text-sm font-semibold text-[#1a1a1a]/80 mb-4">Posts by Client</h2>
+          {byClient.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={byClient} layout="vertical" barSize={20}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,26,26,0.06)" horizontal={false} />
+                <XAxis type="number" allowDecimals={false} tick={{ fill: "rgba(26,26,26,0.4)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" tick={{ fill: "rgba(26,26,26,0.6)", fontSize: 11 }} axisLine={false} tickLine={false} width={100} />
+                <Tooltip contentStyle={{ background: "#fff", border: "1px solid #e0e0e0", borderRadius: 8, fontSize: 12 }} />
+                <Bar dataKey="posts" fill="#f5c800" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : <div className="flex items-center justify-center h-[200px] text-sm text-[#999]">No data</div>}
+        </div>
+
+        <div className="rounded-xl border border-[#e0e0e0] bg-white p-5">
+          <h2 className="text-sm font-semibold text-[#1a1a1a]/80 mb-4">Posts by Platform</h2>
+          {byPlatform.length > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={160}>
+                <PieChart>
+                  <Pie data={byPlatform} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" paddingAngle={3}>
+                    {byPlatform.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                  </Pie>
+                  <Tooltip contentStyle={{ background: "#fff", border: "1px solid #e0e0e0", borderRadius: 8, fontSize: 12 }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="space-y-1.5 mt-2">
+                {byPlatform.map((p, i) => (
+                  <div key={i} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ background: p.color }} /><span className="text-[#555]">{p.name}</span></div>
+                    <span className="font-semibold text-[#1a1a1a]">{p.value}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : <div className="flex items-center justify-center h-[160px] text-sm text-[#999]">No platform data yet</div>}
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-[#e0e0e0] bg-white p-5">
+        <h2 className="text-sm font-semibold text-[#1a1a1a]/80 mb-4">Connected Social Accounts</h2>
+        {accounts.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {accounts.map((acc, i) => (
+              <div key={i} className="rounded-xl border border-[#e0e0e0] p-4 flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${acc.platform === "instagram" ? "bg-pink-500/10" : "bg-blue-500/10"}`}>
+                  {acc.platform === "instagram" ? <Instagram size={16} className="text-pink-500" /> : <Facebook size={16} className="text-blue-500" />}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-[#1a1a1a] truncate">@{acc.account_name}</div>
+                  <div className="text-xs text-[#999] capitalize">{acc.platform}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : <div className="text-sm text-[#999] text-center py-6">No connected accounts yet</div>}
+      </div>
     </div>
   );
 }
