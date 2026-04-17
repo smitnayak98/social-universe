@@ -342,7 +342,7 @@ export default function CreatePostPage() {
             </button>
             <button type="button" disabled={loading || uploading} onClick={handlePublishNow}
               className="rounded-xl bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 px-4 py-2.5 text-sm font-semibold text-[#1a1a1a] transition disabled:opacity-50 shadow-lg">
-              {uploading ? "Uploading media..." : loading ? "Publishing..." : "Publish Now to Instagram"}
+              {uploading ? "Uploading media..." : loading ? "Publishing..." : "Publish Now"}
             </button>
             <button type="button" disabled={loading} onClick={() => handleSubmit("draft")}
               className="rounded-xl border border-[#ccc] px-4 py-2.5 text-sm font-semibold text-violet-100 transition hover:bg-[#eeeeee] disabled:opacity-50">
