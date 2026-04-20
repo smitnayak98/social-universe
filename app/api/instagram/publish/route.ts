@@ -32,47 +32,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No connected Instagram account found' }, { status: 400 })
     }
 
+    // Use stored Instagram Business Account ID directly
+    const igUserId = account.account_id
     const token = account.access_token
 
-    // Try to get Instagram Business Account ID
-    // First try stored account_id
-    let igUserId = account.account_id
-
-    // If stored account_id looks like a Facebook Page ID, try to find IG account via pages
-    if (igUserId) {
-      // Verify it's a valid Instagram account
-      const verifyRes = await fetch(
-        `https://graph.facebook.com/v18.0/${igUserId}?fields=id,username&access_token=${token}`
-      )
-      const verifyData = await verifyRes.json()
-      if (verifyData.error) {
-        // Not a valid IG account, try to find via pages
-        igUserId = null
-      }
-    }
-
-    // If no valid IG account ID, try finding via pages
     if (!igUserId) {
-      const pagesRes = await fetch(
-        `https://graph.facebook.com/v18.0/me/accounts?fields=instagram_business_account{id,username}&access_token=${token}`
-      )
-      const pagesData = await pagesRes.json()
-      const pages = pagesData.data || []
-      for (const page of pages) {
-        if (page.instagram_business_account) {
-          igUserId = page.instagram_business_account.id
-          break
-        }
-      }
+      return NextResponse.json({ error: 'No Instagram Business account ID found. Please reconnect Instagram.' }, { status: 400 })
     }
 
-    if (!igUserId) {
-      return NextResponse.json({
-        error: 'No Instagram Business account found. Please reconnect Instagram in Social Accounts.'
-      }, { status: 400 })
-    }
-
-    // Get media files
     const { data: mediaFiles } = await supabase
       .from('post_media').select('*').eq('post_id', post_id).order('sort_order')
 
@@ -122,11 +89,7 @@ export async function POST(req: NextRequest) {
       .update({ status: 'published', published_at: new Date().toISOString() })
       .eq('id', post_id)
 
-    return NextResponse.json({
-      success: true,
-      instagram_post_id: publishData.id,
-      message: 'Post published to Instagram successfully!'
-    })
+    return NextResponse.json({ success: true, instagram_post_id: publishData.id })
 
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
