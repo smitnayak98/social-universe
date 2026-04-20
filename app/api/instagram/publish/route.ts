@@ -11,12 +11,10 @@ export async function POST(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    const { data: post, error: postError } = await supabase
+    const { data: post } = await supabase
       .from('posts').select('*, clients(name)').eq('id', post_id).single()
+    if (!post) return NextResponse.json({ error: 'Post not found' }, { status: 404 })
 
-    if (postError || !post) return NextResponse.json({ error: 'Post not found' }, { status: 404 })
-
-    // Get client-specific account
     let { data: account } = await supabase
       .from('social_accounts').select('*')
       .eq('platform', 'instagram').eq('is_connected', true)
@@ -36,24 +34,41 @@ export async function POST(req: NextRequest) {
 
     const token = account.access_token
 
-    // Get Instagram Business Account ID via Facebook Graph API
-    const pagesRes = await fetch(
-      `https://graph.facebook.com/v18.0/me/accounts?fields=instagram_business_account{id,username}&access_token=${token}`
-    )
-    const pagesData = await pagesRes.json()
-    const pages = pagesData.data || []
+    // Try to get Instagram Business Account ID
+    // First try stored account_id
+    let igUserId = account.account_id
 
-    let igUserId = null
-    for (const page of pages) {
-      if (page.instagram_business_account) {
-        igUserId = page.instagram_business_account.id
-        break
+    // If stored account_id looks like a Facebook Page ID, try to find IG account via pages
+    if (igUserId) {
+      // Verify it's a valid Instagram account
+      const verifyRes = await fetch(
+        `https://graph.facebook.com/v18.0/${igUserId}?fields=id,username&access_token=${token}`
+      )
+      const verifyData = await verifyRes.json()
+      if (verifyData.error) {
+        // Not a valid IG account, try to find via pages
+        igUserId = null
+      }
+    }
+
+    // If no valid IG account ID, try finding via pages
+    if (!igUserId) {
+      const pagesRes = await fetch(
+        `https://graph.facebook.com/v18.0/me/accounts?fields=instagram_business_account{id,username}&access_token=${token}`
+      )
+      const pagesData = await pagesRes.json()
+      const pages = pagesData.data || []
+      for (const page of pages) {
+        if (page.instagram_business_account) {
+          igUserId = page.instagram_business_account.id
+          break
+        }
       }
     }
 
     if (!igUserId) {
-      return NextResponse.json({ 
-        error: 'No Instagram Business account found. Please connect a Facebook Page that has an Instagram Business account linked.' 
+      return NextResponse.json({
+        error: 'No Instagram Business account found. Please reconnect Instagram in Social Accounts.'
       }, { status: 400 })
     }
 
@@ -83,7 +98,9 @@ export async function POST(req: NextRequest) {
       }
     )
     const containerData = await containerRes.json()
-    if (containerData.error) return NextResponse.json({ error: containerData.error.message }, { status: 400 })
+    if (containerData.error) {
+      return NextResponse.json({ error: containerData.error.message }, { status: 400 })
+    }
 
     if (isVideo) await new Promise(r => setTimeout(r, 5000))
 
@@ -97,7 +114,9 @@ export async function POST(req: NextRequest) {
       }
     )
     const publishData = await publishRes.json()
-    if (publishData.error) return NextResponse.json({ error: publishData.error.message }, { status: 400 })
+    if (publishData.error) {
+      return NextResponse.json({ error: publishData.error.message }, { status: 400 })
+    }
 
     await supabase.from('posts')
       .update({ status: 'published', published_at: new Date().toISOString() })
