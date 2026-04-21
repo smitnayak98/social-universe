@@ -74,7 +74,7 @@ export default function CreatePostPage() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", UPLOAD_PRESET);
-      const res = await fetch(`https://api.cloudinary.com/v1_0/${CLOUD_NAME}/image/upload`, {
+      const res = await fetch(`https://api.cloudinary.com/v1_0/${CLOUD_NAME}/auto/upload`, {
         method: "POST", body: formData,
       });
       const data = await res.json();
@@ -226,7 +226,6 @@ export default function CreatePostPage() {
             <MediaUploader onMediaChange={setMediaFiles} onUploadingChange={setUploading} maxFiles={15} />
           </div>
 
-          {/* Thumbnail */}
           <div className="space-y-2 text-sm">
             <span className="text-[#333]">Thumbnail <span className="text-[#999]">(optional · for Reels & Videos · max 10MB)</span></span>
             <div className="flex items-center gap-3">
