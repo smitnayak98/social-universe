@@ -1,22 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import MediaUploader from "@/components/MediaUploader";
 import { createClient } from "@/lib/supabase/client";
+import { ImagePlus, X, Loader2 } from "lucide-react";
 
 const maxChars = 2200;
 const supabase = createClient();
+const CLOUD_NAME = 'dnhndstzh';
+const UPLOAD_PRESET = 'social_universe';
 
-type MediaFile = {
-  url: string;
-  type: string;
-};
-
-type ClientOption = {
-  id: string;
-  name: string | null;
-};
+type MediaFile = { url: string; type: string; };
+type ClientOption = { id: string; name: string | null; };
 
 const PLATFORM_OPTIONS = [
   { id: "instagram", label: "Instagram" },
@@ -28,16 +24,19 @@ const PLATFORM_OPTIONS = [
 
 export default function CreatePostPage() {
   const router = useRouter();
-  const [caption,     setCaption]     = useState("");
-  const [mediaFiles,  setMediaFiles]  = useState<MediaFile[]>([]);
-  const [platforms,   setPlatforms]   = useState<string[]>(["instagram", "facebook"]);
-  const [scheduleAt,  setScheduleAt]  = useState("");
-  const [clients,     setClients]     = useState<ClientOption[]>([]);
-  const [clientId,    setClientId]    = useState("");
-  const [contentType, setContentType] = useState("Post");
-  const [loading,     setLoading]     = useState(false);
-  const [uploading,   setUploading]   = useState(false);
-  const [toast,       setToast]       = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
+  const [caption,       setCaption]       = useState("");
+  const [mediaFiles,    setMediaFiles]    = useState<MediaFile[]>([]);
+  const [platforms,     setPlatforms]     = useState<string[]>(["instagram", "facebook"]);
+  const [scheduleAt,    setScheduleAt]    = useState("");
+  const [clients,       setClients]       = useState<ClientOption[]>([]);
+  const [clientId,      setClientId]      = useState("");
+  const [contentType,   setContentType]   = useState("Post");
+  const [loading,       setLoading]       = useState(false);
+  const [uploading,     setUploading]     = useState(false);
+  const [thumbnailUrl,  setThumbnailUrl]  = useState("");
+  const [thumbLoading,  setThumbLoading]  = useState(false);
+  const [toast,         setToast]         = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
   const left = useMemo(() => maxChars - caption.length, [caption]);
 
@@ -65,12 +64,40 @@ export default function CreatePostPage() {
     setPlatforms(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
   };
 
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { showToast("Thumbnail must be an image", "error"); return; }
+    if (file.size > 10 * 1024 * 1024) { showToast("Thumbnail must be under 10MB", "error"); return; }
+    setThumbLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
+      const res = await fetch(`https://api.cloudinary.com/v1_0/${CLOUD_NAME}/image/upload`, {
+        method: "POST", body: formData,
+      });
+      const data = await res.json();
+      if (data.secure_url) {
+        setThumbnailUrl(data.secure_url);
+        showToast("Thumbnail uploaded!");
+      } else {
+        showToast("Thumbnail upload failed", "error");
+      }
+    } catch {
+      showToast("Thumbnail upload failed", "error");
+    }
+    setThumbLoading(false);
+    if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
+  };
+
   const savePost = async (status: string, scheduledAt: string | null) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { showToast("Please login again", "error"); return null; }
     const { data, error } = await supabase.from("posts").insert([{
       user_id: user.id, client_id: clientId, caption, status,
       scheduled_at: scheduledAt || null, platforms,
+      thumbnail_url: thumbnailUrl || null,
     }]).select();
     if (error || !data?.[0]?.id) {
       showToast("Failed to save post: " + (error?.message || "Unknown error"), "error");
@@ -117,10 +144,8 @@ export default function CreatePostPage() {
     setLoading(true);
     const postId = await savePost("draft", null);
     if (!postId) { setLoading(false); return; }
-
     const results: string[] = [];
     const errors: string[] = [];
-
     for (const platform of platforms) {
       if (platform === "instagram") {
         try {
@@ -145,7 +170,6 @@ export default function CreatePostPage() {
         } catch { errors.push("Facebook: network error"); }
       }
     }
-
     if (results.length > 0) {
       showToast(`Published to ${results.join(" & ")}!`, "success");
       setTimeout(() => router.push("/posts"), 700);
@@ -198,8 +222,41 @@ export default function CreatePostPage() {
           </label>
 
           <div className="space-y-2 text-sm">
-            <span className="text-[#333]">Media <span className="text-[#999]">(optional · max 10MB each)</span></span>
+            <span className="text-[#333]">Media <span className="text-[#999]">(optional · Images 50MB · Videos 700MB)</span></span>
             <MediaUploader onMediaChange={setMediaFiles} onUploadingChange={setUploading} maxFiles={15} />
+          </div>
+
+          {/* Thumbnail */}
+          <div className="space-y-2 text-sm">
+            <span className="text-[#333]">Thumbnail <span className="text-[#999]">(optional · for Reels & Videos · max 10MB)</span></span>
+            <div className="flex items-center gap-3">
+              {thumbnailUrl ? (
+                <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-[#e0e0e0] flex-shrink-0">
+                  <img src={thumbnailUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => setThumbnailUrl("")}
+                    className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/80">
+                    <X size={10} />
+                  </button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => thumbnailInputRef.current?.click()}
+                  disabled={thumbLoading}
+                  className="w-24 h-24 rounded-xl border-2 border-dashed border-[#e0e0e0] hover:border-[#f5c800] bg-[#fafafa] hover:bg-[#fffbeb] flex flex-col items-center justify-center gap-1.5 transition-all text-[#999] hover:text-[#b8930a] disabled:opacity-50">
+                  {thumbLoading
+                    ? <Loader2 size={20} className="animate-spin" />
+                    : <><ImagePlus size={20} /><span className="text-xs">Add Thumbnail</span></>
+                  }
+                </button>
+              )}
+              {thumbnailUrl && (
+                <div className="text-xs text-[#999]">
+                  <p className="text-green-600 font-medium">✓ Thumbnail uploaded</p>
+                  <button type="button" onClick={() => thumbnailInputRef.current?.click()}
+                    className="text-[#b8930a] hover:underline mt-0.5">Change thumbnail</button>
+                </div>
+              )}
+            </div>
+            <input ref={thumbnailInputRef} type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
           </div>
 
           <fieldset>
