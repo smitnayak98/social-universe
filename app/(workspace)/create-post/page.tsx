@@ -74,7 +74,7 @@ export default function CreatePostPage() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", UPLOAD_PRESET);
-      const res = await fetch(`https://api.cloudinary.com/v1_0/${CLOUD_NAME}/auto/upload`, {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
         method: "POST", body: formData,
       });
       const data = await res.json();
@@ -226,37 +226,40 @@ export default function CreatePostPage() {
             <MediaUploader onMediaChange={setMediaFiles} onUploadingChange={setUploading} maxFiles={15} />
           </div>
 
-          <div className="space-y-2 text-sm">
-            <span className="text-[#333]">Thumbnail <span className="text-[#999]">(optional · for Reels & Videos · max 10MB)</span></span>
-            <div className="flex items-center gap-3">
-              {thumbnailUrl ? (
-                <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-[#e0e0e0] flex-shrink-0">
-                  <img src={thumbnailUrl} alt="Thumbnail" className="w-full h-full object-cover" />
-                  <button type="button" onClick={() => setThumbnailUrl("")}
-                    className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/80">
-                    <X size={10} />
-                  </button>
-                </div>
-              ) : (
-                <button type="button" onClick={() => thumbnailInputRef.current?.click()}
-                  disabled={thumbLoading}
-                  className="w-24 h-24 rounded-xl border-2 border-dashed border-[#e0e0e0] hover:border-[#f5c800] bg-[#fafafa] hover:bg-[#fffbeb] flex flex-col items-center justify-center gap-1.5 transition-all text-[#999] hover:text-[#b8930a] disabled:opacity-50">
-                  {thumbLoading
-                    ? <Loader2 size={20} className="animate-spin" />
-                    : <><ImagePlus size={20} /><span className="text-xs">Add Thumbnail</span></>
-                  }
-                </button>
-              )}
-              {thumbnailUrl && (
-                <div className="text-xs text-[#999]">
-                  <p className="text-green-600 font-medium">✓ Thumbnail uploaded</p>
+          {/* Thumbnail — only for Reels */}
+          {contentType === "Reel" && (
+            <div className="space-y-2 text-sm">
+              <span className="text-[#333]">Thumbnail <span className="text-[#999]">(optional · cover image for Reel · max 10MB)</span></span>
+              <div className="flex items-center gap-3">
+                {thumbnailUrl ? (
+                  <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-[#e0e0e0] flex-shrink-0">
+                    <img src={thumbnailUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => setThumbnailUrl("")}
+                      className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/80">
+                      <X size={10} />
+                    </button>
+                  </div>
+                ) : (
                   <button type="button" onClick={() => thumbnailInputRef.current?.click()}
-                    className="text-[#b8930a] hover:underline mt-0.5">Change thumbnail</button>
-                </div>
-              )}
+                    disabled={thumbLoading}
+                    className="w-24 h-24 rounded-xl border-2 border-dashed border-[#e0e0e0] hover:border-[#f5c800] bg-[#fafafa] hover:bg-[#fffbeb] flex flex-col items-center justify-center gap-1.5 transition-all text-[#999] hover:text-[#b8930a] disabled:opacity-50">
+                    {thumbLoading
+                      ? <Loader2 size={20} className="animate-spin" />
+                      : <><ImagePlus size={20} /><span className="text-xs">Add Thumbnail</span></>
+                    }
+                  </button>
+                )}
+                {thumbnailUrl && (
+                  <div className="text-xs text-[#999]">
+                    <p className="text-green-600 font-medium">✓ Thumbnail uploaded</p>
+                    <button type="button" onClick={() => thumbnailInputRef.current?.click()}
+                      className="text-[#b8930a] hover:underline mt-0.5">Change thumbnail</button>
+                  </div>
+                )}
+              </div>
+              <input ref={thumbnailInputRef} type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
             </div>
-            <input ref={thumbnailInputRef} type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
-          </div>
+          )}
 
           <fieldset>
             <legend className="mb-2 text-sm text-[#333]">Platforms</legend>
